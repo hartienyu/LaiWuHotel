@@ -1,0 +1,17 @@
+<view class="discover-container">
+  <view class="header">
+    <text class="title">探索美好住宿</text>
+    <text class="subtitle">精选莱芜及周边优质房源</text>
+  </view>
+
+  <goods-list
+    wr-class="goods-list-container"
+    goodsList="{{goodsList}}"
+    bind:click="goodListClickHandle"
+    bind:addcart="goodListAddCartHandle"
+  />
+
+  <load-more list-is-empty="{{!goodsList.length}}" status="{{goodsListLoadStatus}}" bind:retry="onReTry" />
+</view>
+
+<t-toast id="t-toast" />

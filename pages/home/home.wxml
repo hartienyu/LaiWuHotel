@@ -1,0 +1,95 @@
+<view class="bg-swiper-wrap">
+  <t-swiper
+    wx:if="{{imgSrcs.length > 0}}"
+    current="{{current}}"
+    autoplay="{{autoplay}}"
+    duration="{{duration}}"
+    interval="{{interval}}"
+    navigation="{{ { type: 'dots' } }}"
+    list="{{imgSrcs}}"
+    image-props="{{ { mode: 'aspectFill' } }}"
+    class="fullscreen-swiper"
+    style="--td-swiper-height: 65vh; height: 65vh;"
+    t-class-image="custom-swiper-image"
+    bind:click="navToActivityDetail"
+  />
+  
+  <view class="hero-overlay"></view>
+  
+  <view class="hotel-branding">
+    <text class="brand-title">山水御苑</text>
+    <text class="brand-subtitle">枕山卧水，诗意栖居</text>
+  </view>
+</view>
+
+<view class="floating-island-container">
+  
+  <view class="booking-card">
+    <view class="card-row city-row">
+      <view class="city-info">
+        <text class="city-name">{{cityName}}</text>
+        <view class="location-badge">
+          <t-icon name="location" size="32rpx" color="#666" />
+          <text>当前位置</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card-row date-row" bind:tap="onDateSelect">
+      <view class="date-col">
+        <text class="date-val">{{checkInDate}}</text>
+        <text class="date-label">周一 入住</text>
+      </view>
+      <view class="date-duration">
+        <text class="duration-badge">共{{stayDays}}晚</text>
+        <view class="line"></view>
+      </view>
+      <view class="date-col right">
+        <text class="date-val">{{checkOutDate}}</text>
+        <text class="date-label">周二 离店</text>
+      </view>
+    </view>
+
+    <view class="card-row search-row" bind:tap="navToSearchPage">
+      <view class="search-fake-input">
+        <t-icon name="search" size="40rpx" color="#999" />
+        <text class="placeholder">搜索酒店/地名/关键词</text>
+      </view>
+    </view>
+
+    <button class="booking-btn" bind:tap="onBookingTap">
+      立即预订
+    </button>
+  </view>
+
+  <view class="service-bar">
+    <view class="service-item" bind:tap="onMemberTap">
+      <t-icon name="user-circle" size="48rpx" color="#333" />
+      <text>会员权益</text>
+    </view>
+    <view class="service-item-divider"></view>
+    <view class="service-item" bind:tap="onCouponTap">
+      <t-icon name="discount" size="48rpx" color="#333" />
+      <text>领券中心</text>
+    </view>
+    <view class="service-item-divider"></view>
+    <view class="service-item" bind:tap="openMakePhone">
+      <t-icon name="service" size="48rpx" color="#333" />
+      <text>专属客服</text>
+    </view>
+  </view>
+
+</view>
+
+<t-toast id="t-toast" />
+
+<t-popup visible="{{showMakePhone}}" placement="bottom" bind:visible-change="closeMakePhone" data-index="2">
+  <view class="popup-content">
+    <view class="popup-title border-bottom-1px" wx:if="{{customerServiceInfo.serviceTimeDuration}}">
+      服务时间: {{customerServiceInfo.serviceTimeDuration}}
+    </view>
+    <view class="popup-phone {{showKefu ? 'border-bottom-1px' : ''}}" bind:tap="call">电话客服</view>
+    <button class="popup-phone border-bottom-1px online" open-type="contact" wx:if="{{showKefu}}">在线客服</button>
+    <view class="popup-close" bind:tap="closeMakePhone">取消</view>
+  </view>
+</t-popup>
