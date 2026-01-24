@@ -3,7 +3,9 @@
     "pages/home/home",
     "pages/discover/discover",
     "pages/cart/index",
-    "pages/usercenter/index"
+    "pages/usercenter/index",
+    "pages/login/index",
+    "pages/login/profile"
   ],
   "subpackages": [
     {

@@ -1,0 +1,38 @@
+<view class="profile-container">
+  
+  <view class="header-tips">
+    <text class="title">完善个人信息</text>
+    <text class="subtitle">以便为您提供更好的服务</text>
+  </view>
+
+  <view class="form-card">
+    
+    <button class="avatar-row" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <view class="label">头像</view>
+      <view class="avatar-wrapper">
+        <image class="avatar" src="{{avatarUrl || 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'}}" mode="aspectFill"></image>
+        <text class="arrow">></text> </view>
+    </button>
+
+    <view class="divider"></view>
+
+    <view class="input-row">
+      <view class="label">昵称</view>
+      <input 
+        type="nickname" 
+        class="nickname-input" 
+        placeholder="请输入昵称" 
+        placeholder-class="placeholder"
+        bindchange="onNicknameChange" 
+        bindinput="onNicknameChange"
+        value="{{nickName}}"
+      />
+    </view>
+
+  </view>
+
+  <view class="footer">
+    <button class="save-btn" bindtap="handleSave">保 存</button>
+  </view>
+
+</view>

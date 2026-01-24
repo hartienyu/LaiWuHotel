@@ -18,8 +18,6 @@ Page({
     maxDateStr: '',
   },
 
-  // 🟢 关键修复点 1：在 onLoad 中初始化分页变量
-  // 这样它就挂载到了 this 上，后续就可以用 this.goodListPagination 访问了
   onLoad() {
     this.goodListPagination = {
       index: 0,
@@ -58,7 +56,6 @@ Page({
 
   // 初始化
   init() {
-    // 🟢 关键修复点 2：这里现在可以安全地访问 index 了
     this.goodListPagination.index = 0;
     this.setData({ goodsList: [] });
     this.loadGoodsList(true);
