@@ -9,7 +9,7 @@
     list="{{imgSrcs}}"
     image-props="{{ { mode: 'aspectFill' } }}"
     class="fullscreen-swiper"
-    style="--td-swiper-height: 65vh; height: 65vh;"
+    style="--td-swiper-height: 40vh; height: 40vh;"
     t-class-image="custom-swiper-image"
     bind:click="navToActivityDetail"
   />

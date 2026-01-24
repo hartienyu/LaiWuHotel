@@ -4,6 +4,7 @@ page {
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: border-box;
   height: 100vh;
+  overflow: hidden; /* 禁止页面纵向滚动，改为按屏幕高度适配 */
 }
 
 /* --- 2. 顶部沉浸式背景 --- */
@@ -12,7 +13,7 @@ page {
   top: 0;
   left: 0;
   width: 100%;
-  height: 60vh; /* 稍微减小一点背景高度，让比例更协调 */
+  height: 40vh; /* 缩短顶部背景高度以保证下方内容能在同屏内展示 */
   z-index: 0;
 }
 
@@ -50,7 +51,7 @@ page {
 /* 酒店 Logo - 稍微往上提一点 */
 .hotel-branding {
   position: absolute;
-  top: 30%;
+  top: 20%; /* 向上移动品牌信息，配合更短的背景高度 */
   width: 100%;
   text-align: center;
   color: #fff;
@@ -74,7 +75,7 @@ page {
 .floating-island-container {
   position: relative;
   z-index: 10;
-  margin-top: 45vh; 
+  margin-top: 38vh; /* 与顶部 40vh 保持小间隙，确保卡片露出并整体在可视区内 */
   padding: 0 32rpx;
 }
 
@@ -82,12 +83,13 @@ page {
 .booking-card {
   background: #fff;
   border-radius: 24rpx;
-  /* 稍微减少内边距，节省空间 */
-  padding: 30rpx 32rpx; 
+  padding: 24rpx 28rpx; /* 进一步减少内边距以节省垂直空间 */
   box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: 18rpx;
+  max-height: calc(100vh - 40vh - 120rpx); /* 限制卡片高度，避免超出视窗 */
+  overflow: hidden;
 }
 
 .card-row { width: 100%; }
@@ -156,15 +158,13 @@ page {
 /* --- 4. 底部服务栏 (格式修复) --- */
 .service-bar {
   display: flex;
-  /* 均匀分布，避免乱跑 */
   justify-content: space-around; 
   align-items: center;
   background: #fff;
-  margin-top: 24rpx;
-  padding: 24rpx 0;
+  margin-top: 16rpx; /* 减少间距，节省垂直空间 */
+  padding: 18rpx 0;
   border-radius: 20rpx;
   box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
-  /* 确保宽度正确 */
   width: 100%; 
   box-sizing: border-box;
 }
