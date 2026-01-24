@@ -4,12 +4,46 @@
     <text class="subtitle">精选莱芜及周边优质房源</text>
   </view>
 
-  <goods-list
-    wr-class="goods-list-container"
-    goodsList="{{goodsList}}"
-    bind:click="goodListClickHandle"
-    bind:addcart="goodListAddCartHandle"
-  />
+  <view class="hotel-list-container">
+    <block wx:for="{{goodsList}}" wx:key="spuId">
+      <view class="hotel-card" bindtap="goodListClickHandle" data-index="{{index}}">
+        
+        <image class="hotel-cover" src="{{item.hotelImages[0]}}" mode="aspectFill" lazy-load />
+        
+        <view class="hotel-info">
+          <view class="name-row">
+            <text class="hotel-name">{{item.name}}</text>
+            <view class="score-badge" wx:if="{{item.score}}">
+              <text class="score-num">{{item.score}}</text>
+              <text class="score-unit">分</text>
+            </view>
+          </view>
+
+          <view class="tags-row">
+            <text class="tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+          
+          <view class="divider"></view>
+
+          <view class="room-list">
+            <view class="room-item" wx:for="{{item.roomList}}" wx:for-item="room" wx:key="name" wx:if="{{index < 3}}">
+              <image class="room-thumb" src="{{room.roomImages[0]}}" mode="aspectFill" />
+              
+              <view class="room-detail">
+                <text class="room-name">{{room.name}}</text>
+                <text class="room-info">{{room.area}}㎡ | 剩{{room.totalCount}}间</text>
+              </view>
+              
+              <view class="room-price">
+                <text class="symbol">¥</text>
+                <text class="num">{{room.price / 100}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
 
   <load-more list-is-empty="{{!goodsList.length}}" status="{{goodsListLoadStatus}}" bind:retry="onReTry" />
 </view>

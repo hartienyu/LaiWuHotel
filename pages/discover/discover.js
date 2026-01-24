@@ -5,21 +5,21 @@ Page({
   data: {
     goodsList: [],
     goodsListLoadStatus: 0, // 0:加载中, 1:已加载, 2:没有更多了, 3:加载失败
-    pageLoading: false,
+    // 注意：goodListPagination 不要放在这里，因为它不需要显示在界面上
   },
 
-  // 分页控制
-  goodListPagination: {
-    index: 0,
-    num: 10, // 每页加载多少个
-  },
-
-  // 页面加载
+  // 🟢 关键修复点 1：在 onLoad 中初始化分页变量
+  // 这样它就挂载到了 this 上，后续就可以用 this.goodListPagination 访问了
   onLoad() {
+    this.goodListPagination = {
+      index: 0,
+      num: 10,
+    };
     this.init();
   },
 
   onShow() {
+    // 底部 TabBar 高亮初始化
     const tabBar = this.getTabBar();
     if (tabBar && typeof tabBar.init === 'function') {
       tabBar.init();
@@ -38,10 +38,11 @@ Page({
     }
   },
 
+  // 初始化
   init() {
-    // 重置分页
+    // 🟢 关键修复点 2：这里现在可以安全地访问 index 了
     this.goodListPagination.index = 0;
-    this.setData({ goodsList: [] }); // 清空列表
+    this.setData({ goodsList: [] });
     this.loadGoodsList(true);
   },
 
@@ -51,50 +52,44 @@ Page({
       wx.stopPullDownRefresh();
     }
 
-    this.setData({ goodsListLoadStatus: 1 }); // 设为加载中
+    this.setData({ goodsListLoadStatus: 1 });
 
     const pageSize = this.goodListPagination.num;
     let pageIndex = this.goodListPagination.index + 1;
     if (fresh) {
-      pageIndex = 0;
+      pageIndex = 1;
     }
 
     try {
-      // 调用接口获取数据
       const nextList = await fetchGoodsList(pageIndex, pageSize);
       
       this.setData({
         goodsList: fresh ? nextList : this.data.goodsList.concat(nextList),
-        goodsListLoadStatus: nextList.length < pageSize ? 2 : 0, // 如果返回数量小于页容量，说明没有更多了
+        goodsListLoadStatus: nextList.length < pageSize ? 2 : 0,
       });
 
       this.goodListPagination.index = pageIndex;
-      this.goodListPagination.num = pageSize;
     } catch (err) {
-      this.setData({ goodsListLoadStatus: 3 }); // 加载失败状态
+      console.error(err);
+      this.setData({ goodsListLoadStatus: 3 });
     }
   },
 
-  // 点击加载失败重试
+  // 加载失败重试
   onReTry() {
     this.loadGoodsList();
   },
 
-  // 点击卡片跳转详情
+  // 点击跳转详情
   goodListClickHandle(e) {
-    const { index } = e.detail;
-    const { spuId } = this.data.goodsList[index];
-    wx.navigateTo({
-      url: `/pages/goods/details/index?spuId=${spuId}`,
-    });
-  },
-
-  // 点击购物车图标（如果是房源，可以是收藏）
-  goodListAddCartHandle() {
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: '收藏成功',
-    });
+    const index = e.currentTarget.dataset.index;
+    const item = this.data.goodsList[index];
+    
+    // 确保有 item 再跳转
+    if (item) {
+      wx.navigateTo({
+        url: `/pages/goods/details/index?spuId=${item.spuId}`,
+      });
+    }
   },
 });
