@@ -1,0 +1,124 @@
+page {
+  background-color: #f7f7f7; /* 微信标准底色 */
+}
+
+.profile-container {
+  padding: 40rpx 32rpx;
+}
+
+/* 顶部文案 */
+.header-tips {
+  margin-bottom: 40rpx;
+  padding-left: 10rpx;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #333;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  color: #888;
+}
+
+/* 表单卡片容器：白色背景 + 圆角 */
+.form-card {
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 0 32rpx;
+  margin-bottom: 60rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.02); /* 极淡的阴影 */
+}
+
+/* 通用行样式 */
+.avatar-row, .input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 120rpx; /* 增加高度，更便于点击 */
+  background-color: transparent;
+  padding: 20rpx 0;
+}
+
+/* 去除 button 默认边框和背景 */
+button.avatar-row {
+  width: 100% !important;
+  border: none;
+  margin: 0;
+  padding: 20rpx 0;
+  font-weight: normal;
+  text-align: left;
+  line-height: normal;
+}
+button.avatar-row::after { border: none; }
+
+/* 左侧标签 */
+.label {
+  font-size: 32rpx;
+  color: #333;
+  width: 120rpx; /* 固定宽度，对齐 */
+  font-weight: 400;
+}
+
+/* 头像右侧区域 */
+.avatar-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx; /* 微信现在的头像通常是小圆角矩形，也可以改 50% 变成圆形 */
+  background-color: #eee;
+}
+
+.arrow {
+  color: #ccc;
+  font-size: 32rpx;
+  margin-left: 20rpx;
+  font-family: monospace; /* 防止箭头变形 */
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background-color: #f0f0f0;
+  width: 100%;
+}
+
+/* 昵称输入框 */
+.nickname-input {
+  flex: 1;
+  text-align: right; /* 输入文字靠右，符合移动端表单习惯 */
+  font-size: 32rpx;
+  color: #333;
+  height: 100%;
+}
+
+.placeholder {
+  color: #ccc;
+}
+
+/* 底部按钮区 */
+.footer {
+  margin-top: 80rpx;
+}
+
+.save-btn {
+  background-color: #07c160; /* 微信绿 */
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 500;
+  border-radius: 16rpx; /* 按钮圆角稍微小一点，更像微信 */
+  padding: 24rpx 0;
+  width: 100% !important;
+}
+
+.save-btn:active {
+  opacity: 0.9; /* 点击反馈 */
+}

@@ -1,15 +1,11 @@
 import { fetchGoodsList } from '../../services/good/fetchGoods';
-import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
     goodsList: [],
     goodsListLoadStatus: 0, // 0:加载中, 1:已加载, 2:没有更多了, 3:加载失败
-    // 注意：goodListPagination 不要放在这里，因为它不需要显示在界面上
   },
 
-  // 🟢 关键修复点 1：在 onLoad 中初始化分页变量
-  // 这样它就挂载到了 this 上，后续就可以用 this.goodListPagination 访问了
   onLoad() {
     this.goodListPagination = {
       index: 0,
@@ -40,7 +36,6 @@ Page({
 
   // 初始化
   init() {
-    // 🟢 关键修复点 2：这里现在可以安全地访问 index 了
     this.goodListPagination.index = 0;
     this.setData({ goodsList: [] });
     this.loadGoodsList(true);

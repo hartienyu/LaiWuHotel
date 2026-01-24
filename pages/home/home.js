@@ -86,6 +86,8 @@ Page({
   },
 
   onMemberTap() {
+    const app = getApp();
+    if (!app.checkLogin()) return;
     Toast({ context: this, selector: '#t-toast', message: '查看会员权益' });
   },
 
