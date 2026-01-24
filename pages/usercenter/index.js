@@ -4,37 +4,10 @@ import Toast from 'tdesign-miniprogram/toast/index';
 const menuData = [
   [
     {
-      title: '收货地址',
+      title: '旅客信息',
       tit: '',
-      url: '',
-      type: 'address',
-    },
-    {
-      title: '优惠券',
-      tit: '',
-      url: '',
-      type: 'coupon',
-    },
-    {
-      title: '积分',
-      tit: '',
-      url: '',
-      type: 'point',
-    },
-  ],
-  [
-    {
-      title: '帮助中心',
-      tit: '',
-      url: '',
-      type: 'help-center',
-    },
-    {
-      title: '客服热线',
-      tit: '',
-      url: '',
-      type: 'service',
-      icon: 'service',
+      url: '/pages/user/name-edit/index',
+      type: 'guest',
     },
   ],
 ];
@@ -90,6 +63,7 @@ const getDefaultData = () => ({
   currAuthStep: 1,
   showKefu: true,
   versionNo: '',
+  bookings: [], // 用户的预订记录
 });
 
 Page({
@@ -109,6 +83,7 @@ Page({
 
   init() {
     this.fetUseriInfoHandle();
+    this.loadUserBookings();
   },
 
   fetUseriInfoHandle() {
@@ -141,44 +116,14 @@ Page({
     const { type } = currentTarget.dataset;
 
     switch (type) {
-      case 'address': {
-        wx.navigateTo({ url: '/pages/user/address/list/index' });
-        break;
-      }
-      case 'service': {
-        this.openMakePhone();
-        break;
-      }
-      case 'help-center': {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '你点击了帮助中心',
-          icon: '',
-          duration: 1000,
-        });
-        break;
-      }
-      case 'point': {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '你点击了积分菜单',
-          icon: '',
-          duration: 1000,
-        });
-        break;
-      }
-      case 'coupon': {
-        wx.navigateTo({ url: '/pages/coupon/coupon-list/index' });
+      case 'guest': {
+        wx.navigateTo({ url: '/pages/user/name-edit/index' });
         break;
       }
       default: {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '未知跳转',
-          icon: '',
+        wx.showToast({
+          title: '功能开发中',
+          icon: 'none',
           duration: 1000,
         });
         break;
@@ -198,6 +143,31 @@ Page({
 
   jumpAllOrder() {
     wx.navigateTo({ url: '/pages/order/order-list/index' });
+  },
+
+  // 加载用户预订记录
+  loadUserBookings() {
+    const db = wx.cloud.database();
+    db.collection('inn_booking')
+      .where({
+        userId: wx.getStorageSync('userOpenId') || ''
+      })
+      .orderBy('createdAt', 'desc')
+      .limit(10)
+      .get()
+      .then((res) => {
+        this.setData({ bookings: res.data || [] });
+      })
+      .catch((err) => {
+        console.error('加载预订记录失败:', err);
+        this.setData({ bookings: [] });
+      });
+  },
+
+  // 点击预订卡片跳转到订单详情
+  gotoBookingDetail(e) {
+    const { bookingId } = e.currentTarget.dataset;
+    wx.navigateTo({ url: `/pages/order/order-detail/index?orderNo=${bookingId}` });
   },
 
   openMakePhone() {

@@ -2,9 +2,11 @@
  * 提交民宿预订
  * @param {String} roomId 房间 ID
  * @param {String} checkInDate 入住日期 (YYYY-MM-DD 格式)
+ * @param {String} checkOutDate 离店日期 (YYYY-MM-DD 格式)
+ * @param {Number} roomPrice 房间价格（分）
  * @returns {Promise} 预订结果
  */
-export const submitBooking = (roomId, checkInDate, checkOutDate) => {
+export const submitBooking = (roomId, checkInDate, checkOutDate, roomPrice = 0) => {
   return new Promise((resolve, reject) => {
     if (!roomId || !checkInDate || !checkOutDate) {
       return reject(new Error('参数缺失：roomId、checkInDate 和 checkOutDate 必填'));
@@ -19,7 +21,7 @@ export const submitBooking = (roomId, checkInDate, checkOutDate) => {
 
     wx.cloud.callFunction({
       name: 'submitBooking',
-      data: { roomId, checkInDate, checkOutDate },
+      data: { roomId, checkInDate, checkOutDate, roomPrice },
       success: (res) => {
         if (res && res.result) {
           resolve(res.result);

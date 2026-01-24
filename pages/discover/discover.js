@@ -10,6 +10,7 @@ Page({
     showBookingPopup: false,
     selectedRoomId: null,
     selectedRoomName: '',
+    selectedRoomPrice: 0,
     selectedCheckInDate: '',
     selectedCheckOutDate: '',
     // 限制为今天到 30 天内
@@ -112,7 +113,7 @@ Page({
 
   // 开启预订弹窗
   openBookingPopup(e) {
-    const { roomId, roomName } = e.currentTarget.dataset;
+    const { roomId, roomName, roomPrice } = e.currentTarget.dataset;
     // 如果未选择，默认填充为今天-明天
     const today = new Date();
     const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
@@ -125,6 +126,7 @@ Page({
       showBookingPopup: true,
       selectedRoomId: roomId,
       selectedRoomName: roomName,
+      selectedRoomPrice: roomPrice,
       selectedCheckInDate: defaultCheckIn,
       selectedCheckOutDate: defaultCheckOut,
     });
@@ -135,6 +137,8 @@ Page({
     this.setData({
       showBookingPopup: false,
       selectedRoomId: null,
+      selectedRoomName: '',
+      selectedRoomPrice: 0,
       selectedCheckInDate: '',
       selectedCheckOutDate: '',
     });
@@ -157,7 +161,7 @@ Page({
 
   // 提交预订
   async submitBooking() {
-    const { selectedCheckInDate, selectedRoomId } = this.data;
+    const { selectedCheckInDate, selectedRoomId, selectedRoomPrice } = this.data;
     
     // 验证日期
     if (!selectedCheckInDate) {
@@ -190,28 +194,48 @@ Page({
     }
 
     try {
-      // 调用预订接口
-      const res = await this.submitBookingAPI(selectedRoomId, selectedCheckInDate, this.data.selectedCheckOutDate);
+      // 调用预订接口，传入房间价格
+      const res = await this.submitBookingAPI(selectedRoomId, selectedCheckInDate, this.data.selectedCheckOutDate, selectedRoomPrice);
       if (res) {
-        wx.showToast({ title: '预订成功！', icon: 'success' });
-        this.closeBookingPopup();
-        // 重新加载列表以更新库存
-        this.init();
+        // 预订成功，显示弹窗并跳转到订单列表
+        wx.showModal({
+          title: '预订成功',
+          content: `房间已成功预订\n入住：${selectedCheckInDate}\n离店：${this.data.selectedCheckOutDate}`,
+          showCancel: false,
+          confirmText: '查看订单',
+          success: () => {
+            // 关闭弹窗并刷新
+            this.closeBookingPopup();
+            this.init(); // 刷新列表
+            // 延迟跳转到订单页面
+            setTimeout(() => {
+              wx.switchTab({
+                url: '/pages/order/order-list/index'
+              });
+            }, 500);
+          }
+        });
       }
     } catch (err) {
       console.error('预订失败:', err);
-      wx.showToast({ title: '预订失败，请稍后重试', icon: 'none' });
+      wx.showModal({
+        title: '预订失败',
+        content: err.message || '预订失败，请稍后重试',
+        showCancel: false,
+        confirmText: '确定'
+      });
     }
   },
 
   // 调用预订接口
-  async submitBookingAPI(roomId, checkInDate, checkOutDate) {
+  async submitBookingAPI(roomId, checkInDate, checkOutDate, roomPrice) {
     try {
-      const res = await submitBooking(roomId, checkInDate, checkOutDate);
+      const res = await submitBooking(roomId, checkInDate, checkOutDate, roomPrice);
+      console.log('预订API返回:', res);
       return res && res.code === 0;
     } catch (err) {
       console.error('预订 API 错误:', err);
-      return false;
+      throw err; // 抛出错误而不是返回 false
     }
   },
 });

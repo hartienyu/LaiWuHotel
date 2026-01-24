@@ -48,6 +48,7 @@
                   bind:tap="openBookingPopup"
                   data-room-id="{{room.id}}"
                   data-room-name="{{room.name}}"
+                  data-room-price="{{room.price}}"
                 >
                   预订
                 </t-button>
