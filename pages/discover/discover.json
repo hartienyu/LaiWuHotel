@@ -5,6 +5,9 @@
   "usingComponents": {
     "goods-list": "/components/goods-list/index",
     "load-more": "/components/load-more/index",
-    "t-toast": "tdesign-miniprogram/toast/toast"
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-date-time-picker": "tdesign-miniprogram/date-time-picker/date-time-picker",
+    "t-button": "tdesign-miniprogram/button/button"
   }
 }

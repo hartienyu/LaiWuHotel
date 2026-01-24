@@ -167,3 +167,54 @@ page {
 .num {
   font-size: 34rpx;
 }
+
+/* 预订按钮 */
+.booking-btn-wrap {
+  margin-left: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 预订弹窗 */
+.booking-popup {
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 32rpx 24rpx;
+}
+
+.popup-header {
+  margin-bottom: 32rpx;
+  border-bottom: 1rpx solid #eee;
+  padding-bottom: 16rpx;
+}
+
+.popup-title {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 600;
+}
+
+.popup-content {
+  margin-bottom: 32rpx;
+}
+
+.date-picker-wrapper {
+  margin-bottom: 24rpx;
+}
+
+.label {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.popup-footer {
+  display: flex;
+  gap: 16rpx;
+  justify-content: flex-end;
+}
+
+.popup-footer t-button {
+  flex: 1;
+}

@@ -1,11 +1,20 @@
 import { fetchGoodsList } from '../../services/good/fetchGoods';
+import { submitBooking } from '../../services/booking/submitBooking';
 import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
     goodsList: [],
     goodsListLoadStatus: 0, // 0:加载中, 1:已加载, 2:没有更多了, 3:加载失败
-    // 注意：goodListPagination 不要放在这里，因为它不需要显示在界面上
+    // 预订相关
+    showBookingPopup: false,
+    selectedRoomId: null,
+    selectedRoomName: '',
+    selectedCheckInDate: '',
+    selectedCheckOutDate: '',
+    // 限制为今天到 30 天内
+    minDateStr: '',
+    maxDateStr: '',
   },
 
   // 🟢 关键修复点 1：在 onLoad 中初始化分页变量
@@ -15,6 +24,14 @@ Page({
       index: 0,
       num: 10,
     };
+
+    // 计算 min/max 日期字符串（YYYY-MM-DD），限制为 30 天内
+    const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
+    const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const today = new Date();
+    const max = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    this.setData({ minDateStr: format(today), maxDateStr: format(max) });
+
     this.init();
   },
 
@@ -90,6 +107,111 @@ Page({
       wx.navigateTo({
         url: `/pages/goods/details/index?spuId=${item.spuId}`,
       });
+    }
+  },
+
+  // 开启预订弹窗
+  openBookingPopup(e) {
+    const { roomId, roomName } = e.currentTarget.dataset;
+    // 如果未选择，默认填充为今天-明天
+    const today = new Date();
+    const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
+    const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const defaultCheckIn = format(today);
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+    const defaultCheckOut = format(tomorrow);
+
+    this.setData({
+      showBookingPopup: true,
+      selectedRoomId: roomId,
+      selectedRoomName: roomName,
+      selectedCheckInDate: defaultCheckIn,
+      selectedCheckOutDate: defaultCheckOut,
+    });
+  },
+
+  // 关闭预订弹窗
+  closeBookingPopup() {
+    this.setData({
+      showBookingPopup: false,
+      selectedRoomId: null,
+      selectedCheckInDate: '',
+      selectedCheckOutDate: '',
+    });
+  },
+
+  // 日期选择（来自 <picker>，value 为 YYYY-MM-DD）
+  onCheckInDateChange(e) {
+    const value = e.detail.value;
+    if (value) {
+      this.setData({ selectedCheckInDate: value });
+    }
+  },
+
+  onCheckOutDateChange(e) {
+    const value = e.detail.value;
+    if (value) {
+      this.setData({ selectedCheckOutDate: value });
+    }
+  },
+
+  // 提交预订
+  async submitBooking() {
+    const { selectedCheckInDate, selectedRoomId } = this.data;
+    
+    // 验证日期
+    if (!selectedCheckInDate) {
+      wx.showToast({ title: '请选择入住日期', icon: 'none' });
+      return;
+    }
+
+    // 校验日期范围：check-in 不早于今天, check-out 必须存在且晚于 check-in，且两者都不超过 maxDateStr
+    const checkIn = new Date(selectedCheckInDate).getTime();
+    const checkOut = new Date(this.data.selectedCheckOutDate).getTime();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const max = new Date(this.data.maxDateStr + 'T00:00:00').getTime();
+
+    if (checkIn < today.getTime()) {
+      wx.showToast({ title: '入住日期不能早于今天', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedCheckOutDate) {
+      wx.showToast({ title: '请选择离店日期', icon: 'none' });
+      return;
+    }
+    if (checkOut <= checkIn) {
+      wx.showToast({ title: '离店日期必须晚于入住日期', icon: 'none' });
+      return;
+    }
+    if (checkOut > max) {
+      wx.showToast({ title: '请选择一个月内的日期', icon: 'none' });
+      return;
+    }
+
+    try {
+      // 调用预订接口
+      const res = await this.submitBookingAPI(selectedRoomId, selectedCheckInDate, this.data.selectedCheckOutDate);
+      if (res) {
+        wx.showToast({ title: '预订成功！', icon: 'success' });
+        this.closeBookingPopup();
+        // 重新加载列表以更新库存
+        this.init();
+      }
+    } catch (err) {
+      console.error('预订失败:', err);
+      wx.showToast({ title: '预订失败，请稍后重试', icon: 'none' });
+    }
+  },
+
+  // 调用预订接口
+  async submitBookingAPI(roomId, checkInDate, checkOutDate) {
+    try {
+      const res = await submitBooking(roomId, checkInDate, checkOutDate);
+      return res && res.code === 0;
+    } catch (err) {
+      console.error('预订 API 错误:', err);
+      return false;
     }
   },
 });
