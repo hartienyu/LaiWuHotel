@@ -1,125 +1,85 @@
 const cloud = require('wx-server-sdk');
-
 cloud.init();
-
 const db = cloud.database();
 
 exports.main = async (event) => {
   const { roomId, checkInDate, checkOutDate, roomPrice } = event;
+  console.log('收到预订请求:', { roomId, checkInDate, checkOutDate });
 
   // 参数校验
   if (!roomId || !checkInDate || !checkOutDate) {
-    return {
-      code: -1,
-      message: '参数缺失',
-    };
+    return { code: -1, message: '参数缺失' };
   }
 
   try {
     // 获取调用者的身份信息
     const wxContext = cloud.getWXContext();
     const userId = wxContext.OPENID;
-
-    // 校验日期格式和逻辑
-    const inDate = new Date(checkInDate);
-    const outDate = new Date(checkOutDate);
-
-    if (isNaN(inDate.getTime()) || isNaN(outDate.getTime())) {
-      return {
-        code: -1,
-        message: '日期格式无效',
-      };
-    }
-
-    if (outDate <= inDate) {
-      return {
-        code: -1,
-        message: '离店日期必须晚于入住日期',
-      };
-    }
-
-    // 计算住宿晚数
-    const nights = Math.ceil((outDate - inDate) / (1000 * 60 * 60 * 24));
-
-    // 生成预订ID
-    const bookingId = `BK${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-
-    // 检查房间库存是否足够
-    const inventoryCheck = await db
-      .collection('room_inventory')
+    const debugQuery = await db.collection('room_inventory')
       .where({
-        roomId,
-        date: db.command.gte(checkInDate).and(db.command.lt(checkOutDate)),
-        inventory: db.command.gt(0),
+        roomId: roomId,
+        inventoryDate: checkInDate
       })
-      .count();
+      .get();
 
-    if (inventoryCheck.total < nights) {
+    if (debugQuery.data.length === 0) {
+      const idCheck = await db.collection('room_inventory').where({ roomId }).count();
+      
+      let debugMsg = '';
+      if (idCheck.total === 0) {
+        debugMsg = `数据库里根本没有 ID 为 [${roomId}] 的房间记录！请检查 room_inventory 表里的 roomId 字段。`;
+      } else {
+        debugMsg = `ID [${roomId}] 对了，但日期 [${checkInDate}] 没查到记录。请检查 inventoryDate 字段格式是否为 "YYYY-MM-DD"。`;
+      }
+
+      console.error('库存查询失败:', debugMsg);
       return {
         code: -1,
-        message: '所选日期房间库存不足',
+        message: '调试失败: ' + debugMsg
       };
     }
 
-    // 开始事务：插入预订记录 + 扣减库存
-    const _ = db.command;
-    
-    // 插入预订记录到 inn_booking
+    const record = debugQuery.data[0];
+    if (record.availableCount <= 0) {
+      return {
+        code: -1,
+        message: `调试失败: 房间 [${roomId}] 在 [${checkInDate}] 的库存为 0，无法预订。`
+      };
+    }
+
+    // 生成订单
     const bookingResult = await db.collection('inn_booking').add({
       data: {
-        bookingId,
         roomId,
-        userId,
         checkInDate,
         checkOutDate,
-        nights,
-        status: 1, // 1=待确认, 2=已确认, 3=已取消
-        roomPrice: roomPrice || 0, // 使用前端传来的价格
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+        roomPrice,
+        createTime: db.serverDate(),
+        status: 1
+      }
     });
 
-    // 扣减房间库存（每个日期扣1）
-    const dateArray = [];
-    let currentDate = new Date(checkInDate);
-    while (currentDate < new Date(checkOutDate)) {
-      const dateStr = currentDate.getFullYear() + '-' +
-        String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
-        String(currentDate.getDate()).padStart(2, '0');
-      dateArray.push(dateStr);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    // 批量更新库存（扣减）
-    for (const date of dateArray) {
-      await db
-        .collection('room_inventory')
-        .where({
-          roomId,
-          date,
-        })
-        .update({
-          data: {
-            inventory: _.inc(-1),
-            updatedAt: new Date(),
-          },
-        });
-    }
+    // 扣库存
+    await db.collection('room_inventory').where({
+      roomId, 
+      inventoryDate: checkInDate
+    }).update({
+      data: {
+        availableCount: db.command.inc(-1)
+      }
+    });
 
     return {
       code: 0,
       message: '预订成功',
-      data: {
-        bookingId,
-        orderId: bookingResult._id,
-      },
+      data: { orderId: bookingResult._id }
     };
+
   } catch (err) {
-    console.error('云函数错误:', err);
+    console.error('云函数报错:', err);
     return {
       code: -1,
-      message: err.message || '预订失败',
+      message: '系统错误: ' + err.message
     };
   }
 };

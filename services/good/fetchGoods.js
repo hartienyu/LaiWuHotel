@@ -42,9 +42,27 @@ export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
         }
       }
 
-      // 格式化数据
+      let globalRoomCounter = 1;
+
+      // 3. 格式化数据并注入 ID
       const formattedList = list.map(item => {
         const replaceImgs = (imgs) => (imgs || []).map(id => urlMap[id] || id);
+
+        // 处理房间列表
+        const newRoomList = (item.roomList || []).map(room => {
+          
+          // ✅ 生成格式为 room-001, room-002 的 ID
+          const idSuffix = String(globalRoomCounter).padStart(3, '0'); // 补齐3位，如 001
+          const finalId = `room-${idSuffix}`; 
+          
+          globalRoomCounter++; // 计数器加 1
+
+          return {
+            ...room,
+            id: finalId, // 注入生成的 ID
+            roomImages: replaceImgs(room.roomImages)
+          };
+        });
 
         return {
           spuId: item._id,
@@ -52,14 +70,7 @@ export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
           score: item.score || 4.8,
           tags: item.tags || [],
           hotelImages: replaceImgs(item.hotelImages),
-          
-          // 🟢 重点修改在这里：给每个房间加上 id
-          roomList: (item.roomList || []).map((room, index) => ({
-            ...room,
-            // 生成唯一ID：酒店ID_索引 (例如：hotel123_0)
-            id: `${item._id}_${index}`, 
-            roomImages: replaceImgs(room.roomImages)
-          }))
+          roomList: newRoomList
         };
       });
 
