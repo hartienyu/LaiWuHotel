@@ -25,9 +25,9 @@ export function getCoupon(id = 0, status = 'default', type = (id % 2) + 1) {
     /** 订单底价,满n元 */
     base: 10000 * (parseInt(id) || 0),
     /** 标题 */
-    title: type === 2 ? `生鲜折扣券 - ${id}` : `生鲜满减券 - ${id}`,
+    title: type === 2 ? `民宿折扣券 - ${id}` : `民宿满减券 - ${id}`,
     /** 有效时间限制 */
-    timeLimit: '2019.11.18-2023.12.18',
+    timeLimit: '2025.11.18-2026.12.18',
     /** 货币符号 */
     currency: '¥',
   };
