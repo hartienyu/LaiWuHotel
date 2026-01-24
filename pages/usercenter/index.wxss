@@ -144,3 +144,57 @@ page {
 .cell-box .t-cell-padding {
   padding: 24rpx 18rpx 24rpx 32rpx;
 }
+
+/* 预订记录 */
+.bookings-section {
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  font-weight: 600;
+}
+
+.bookings-list {
+  background: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.booking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.booking-item:last-child {
+  border-bottom: none;
+}
+
+.booking-dates {
+  flex: 1;
+}
+
+.date-label {
+  font-size: 26rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.booking-status {
+  margin-left: 12rpx;
+}
+
+.status-badge {
+  display: inline-block;
+  background: #f0f8ff;
+  color: #0066cc;
+  font-size: 22rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 6rpx;
+}

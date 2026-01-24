@@ -11,6 +11,30 @@
   <view class="order-group-wrapper">
     <t-order-group orderTagInfos="{{orderTagInfos}}" bind:onClickTop="jumpAllOrder" bind:onClickItem="jumpNav" />
   </view>
+
+  <!-- 我的预订 -->
+  <view class="bookings-section" wx:if="{{bookings.length > 0}}">
+    <view class="section-title">我的预订</view>
+    <view class="bookings-list">
+      <view
+        wx:for="{{bookings}}"
+        wx:for-item="booking"
+        wx:key="id"
+        class="booking-item"
+        bindtap="gotoBookingDetail"
+        data-booking-id="{{booking.bookingId}}"
+      >
+        <view class="booking-dates">
+          <text class="date-label">{{booking.checkInDate}} → {{booking.checkOutDate}}</text>
+        </view>
+        <view class="booking-status">
+          <text class="status-badge">{{booking.status === 1 ? '待确认' : booking.status === 2 ? '已确认' : '已取消'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单 -->
   <view wx:for="{{menuData}}" wx:key="item" class="cell-box">
     <t-cell-group>
       <t-cell
@@ -34,14 +58,4 @@
   </view>
 </view>
 <view class="footer__version" wx:if="{{versionNo !== ''}}">当前版本 {{versionNo}}</view>
-<t-popup visible="{{showMakePhone}}" placement="bottom" bind:visible-change="closeMakePhone" data-index="2">
-  <view class="popup-content">
-    <view class="popup-title border-bottom-1px" wx:if="{{customerServiceInfo.serviceTimeDuration}}">
-      服务时间: {{customerServiceInfo.serviceTimeDuration}}
-    </view>
-    <view class="popup-phone {{showKefu ? 'border-bottom-1px' : ''}}" bind:tap="call">电话客服</view>
-    <button class="popup-phone border-bottom-1px online" open-type="contact" wx:if="{{showKefu}}">在线客服</button>
-    <view class="popup-close" bind:tap="closeMakePhone">取消</view>
-  </view>
-</t-popup>
 <t-toast id="t-toast" />
