@@ -1,0 +1,6 @@
+cloudfunctions/
+package-lock.json
+node_modules/
+project.private.config.json
+project.config.json
+sitemap.json

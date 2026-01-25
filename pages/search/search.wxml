@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="search-bar">
+    <input class="search-input" placeholder="输入酒店名搜索" value="{{query}}"
+      bindinput="onInput" bindconfirm="onConfirm" />
+    <button class="search-btn" bindtap="onConfirm">搜索</button>
+    <button class="clear-btn" bindtap="onClear">清空</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">搜索中...</view>
+
+  <view wx:if="{{!loading && results.length === 0 && query !== ''}}" class="no-result">
+    未找到匹配的酒店
+  </view>
+
+  <view class="result-list">
+    <block wx:for="{{results}}" wx:key="_id">
+      <view class="result-item" bindtap="openHotel" data-id="{{item._id}}">
+        <image class="thumb" src="{{item.hotelImages && item.hotelImages[0]}}" mode="aspectFill" />
+        <view class="meta">
+          <text class="name">{{item.name}}</text>
+          <text class="address">{{item.address}}</text>
+          <text class="score">匹配度：{{item._matchPercent}}%</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
