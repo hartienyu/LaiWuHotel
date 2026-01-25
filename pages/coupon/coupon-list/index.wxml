@@ -16,6 +16,7 @@
     value="{{tab.key}}"
   />
 </t-tabs>
+
 <view class="coupon-list-wrap">
   <t-pull-down-refresh
     t-class-indicator="t-class-indicator"
@@ -27,11 +28,10 @@
     <view class="coupon-list-item" wx:for="{{couponList}}" wx:key="key">
       <coupon-card couponDTO="{{item}}" />
     </view>
-  </t-pull-down-refresh>
-  <view class="center-entry">
-    <view class="center-entry-btn" bind:tap="goCouponCenterHandle">
-      <view>领券中心</view>
-      <t-icon name="chevron-right" color="#fa4126" size="40rpx" style="line-height: 28rpx" />
+
+    <view wx:if="{{couponList.length === 0}}" class="no-coupon-tips">
+      <t-empty icon="info-circle-filled" description="没有可用优惠" />
     </view>
-  </view>
+
+  </t-pull-down-refresh>
 </view>

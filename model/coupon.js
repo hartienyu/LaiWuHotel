@@ -35,5 +35,6 @@ export function getCoupon(id = 0, status = 'default', type = (id % 2) + 1) {
 
 /** 优惠券列表 */
 export function getCouponList(status = 'default', length = 10) {
-  return new Array(length).fill(0).map((_, idx) => getCoupon(idx, status));
+  return [];
+  //return new Array(length).fill(0).map((_, idx) => getCoupon(idx, status));
 }

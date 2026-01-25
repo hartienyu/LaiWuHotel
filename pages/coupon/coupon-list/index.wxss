@@ -35,6 +35,7 @@ page {
 }
 
 .coupon-list-wrap {
+  height: calc(100vh - 100rpx);
   margin-top: 32rpx;
   margin-left: 32rpx;
   margin-right: 32rpx;
@@ -75,4 +76,14 @@ page {
 }
 .t-class-indicator {
   color: #b9b9b9 !important;
+}
+
+.no-coupon-tips {
+  padding-top: 200rpx;
+  text-align: center;
+  color: #999;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
