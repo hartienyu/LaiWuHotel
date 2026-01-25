@@ -5,7 +5,8 @@
     "pages/cart/index",
     "pages/usercenter/index",
     "pages/login/index",
-    "pages/login/profile"
+    "pages/login/profile",
+    "pages/search/search"
   ],
   "subpackages": [
     {
@@ -27,7 +28,8 @@
         "search/index",
         "result/index",
         "comments/index",
-        "comments/create/index"
+        "comments/create/index",
+        "search/fetchsearchresults"
       ]
     },
     {
