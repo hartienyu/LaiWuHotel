@@ -1,25 +1,30 @@
 <view class="container">
   <view class="search-header">
-    <t-search 
-      value="{{query}}" 
-      placeholder="搜索酒店 / 地名 / 标签" 
-      bind:change="onInput"
-      bind:submit="onConfirm"
-      bind:clear="onClear"
-      shape="round"
-    />
+    <view class="search-input-wrap">
+      <t-search 
+        value="{{query}}" 
+        placeholder="搜索酒店 / 地名 / 标签" 
+        bind:change="onInput"
+        bind:submit="onConfirm"
+        bind:clear="onClear"
+        shape="round"
+      />
+    </view>
+    <view class="search-btn-wrap">
+      <t-button theme="primary" size="small" bind:tap="onConfirm">搜索</t-button>
+    </view>
   </view>
 
   <view wx:if="{{loading}}" class="loading-state">
     <t-loading theme="circular" size="40rpx" text="搜索中..." />
   </view>
 
-  <view wx:if="{{!loading && results.length === 0 && query}}" class="empty-state">
-    <t-icon name="error-circle" size="96rpx" color="#ccc" />
-    <text class="empty-text">未找到相关房源</text>
+  <view wx:if="{{!loading && showFallbackHint}}" class="fallback-hint">
+    <t-icon name="info-circle" size="32rpx" color="#ed7b2f" />
+    <text>未找到匹配结果，已为您展示所有房源</text>
   </view>
 
-  <view class="result-list">
+  <view class="result-list" wx:if="{{!loading && results.length > 0}}">
     <block wx:for="{{results}}" wx:key="_id">
       <view class="hotel-card" bindtap="navToDetail" data-id="{{item._id}}">
         <image class="hotel-cover" src="{{item.hotelImages[0]}}" mode="aspectFill" lazy-load />
@@ -42,7 +47,7 @@
           <view class="divider"></view>
 
           <view class="room-list">
-            <view class="room-item" wx:for="{{item.roomList}}" wx:for-item="room" wx:key="name" wx:if="{{index < 2}}">
+            <view class="room-item" wx:for="{{item.roomList}}" wx:for-item="room" wx:key="name">
               <image class="room-thumb" src="{{room.roomImages[0]}}" mode="aspectFill" catchtap="true"/>
               
               <view class="room-detail">
@@ -55,11 +60,16 @@
                 <text class="num">{{room.price / 100}}</text>
               </view>
 
-              <view class="booking-btn-wrap" catchtap="openBookingPopup" 
-                data-room-id="{{room.id}}" 
-                data-room-name="{{room.name}}" 
-                data-room-price="{{room.price}}">
-                <t-button theme="primary" size="small" variant="base">预订</t-button>
+              <view class="booking-btn-wrap">
+                <t-button 
+                  theme="primary" 
+                  size="small" 
+                  variant="base"
+                  catch:tap="openBookingPopup" 
+                  data-roomid="{{room.id}}" 
+                  data-roomname="{{room.name}}" 
+                  data-roomprice="{{room.price}}"
+                >预订</t-button>
               </view>
             </view>
           </view>
@@ -69,12 +79,16 @@
     </block>
   </view>
 
+  <view wx:if="{{!loading && results.length === 0 && !showFallbackHint}}" class="empty-state">
+    <t-icon name="error-circle" size="96rpx" color="#ccc" />
+    <text class="empty-text">暂无房源</text>
+  </view>
+
   <t-popup visible="{{showBookingPopup}}" placement="bottom" bind:visible-change="closeBookingPopup">
     <view class="booking-popup">
       <view class="popup-header">
         <text class="popup-title">预订 {{selectedRoomName}}</text>
       </view>
-      
       <view class="popup-content">
         <view class="date-picker-wrapper">
           <text class="label">选择入住/离店日期</text>

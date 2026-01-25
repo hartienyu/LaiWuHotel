@@ -9,12 +9,37 @@ page {
 
 /* 搜索头 */
 .search-header {
-  margin-bottom: 24rpx;
+  margin-bottom: 20rpx;
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #f6f6f6; /* 遮挡下方滚动内容 */
+  background: #f6f6f6;
   padding-bottom: 10rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.search-input-wrap {
+  flex: 1;
+}
+
+.search-btn-wrap {
+  flex-shrink: 0;
+}
+
+/* 🟢 新增：无结果提示条样式 */
+.fallback-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  margin-bottom: 24rpx;
+  padding: 16rpx;
+  background-color: #fff7e6; /* 浅橙色背景 */
+  border-radius: 12rpx;
+  color: #ed7b2f; /* 深橙色文字 */
+  font-size: 26rpx;
 }
 
 /* 状态提示 */
@@ -31,7 +56,7 @@ page {
   font-size: 28rpx;
 }
 
-/* --- 移植的卡片样式 --- */
+/* --- 卡片样式 --- */
 .hotel-card {
   background: #ffffff;
   border-radius: 24rpx;

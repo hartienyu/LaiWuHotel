@@ -6,7 +6,10 @@ Page({
     results: [],
     loading: false,
     
-    // --- 预订弹窗相关数据 (从 discover.js 复刻) ---
+    // 🟢 恢复：控制是否显示“无匹配结果”的提示
+    showFallbackHint: false,
+    
+    // --- 预订弹窗数据 ---
     showBookingPopup: false,
     selectedRoomId: null,
     selectedRoomName: '',
@@ -18,19 +21,19 @@ Page({
   },
 
   onLoad(options) {
-    // 1. 初始化日期限制
     this.initDateLimits();
 
-    // 2. 处理 URL 参数搜索
     if (options && options.q) {
       const q = decodeURIComponent(options.q);
       this.setData({ query: q }, () => {
         this.doSearch();
       });
+    } else {
+      // 初始状态：没有搜索词，显示所有
+      this.doSearch();
     }
   },
 
-  // 初始化日期范围 (今天 ~ 30天后)
   initDateLimits() {
     const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
     const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -48,49 +51,66 @@ Page({
   },
 
   onClear() {
-    this.setData({ query: '', results: [] });
+    // 清空时，重置提示并查所有
+    this.setData({ query: '', results: [], showFallbackHint: false }, () => {
+      this.doSearch();
+    });
   },
 
-  // 核心搜索逻辑
+  // --- 核心搜索逻辑 ---
   async doSearch() {
-    const q = (this.data.query || '').trim();
-    if (!q) {
-      this.setData({ results: [] });
-      return;
-    }
-    this.setData({ loading: true, results: [] });
+    // 每次搜索前，先显示 loading，并重置提示
+    this.setData({ loading: true, showFallbackHint: false });
 
     const db = wx.cloud.database();
-    const _ = db.command;
-    // 构建正则查询
-    const regex = db.RegExp({ regexp: q, options: 'i' });
+    const q = (this.data.query || '').trim();
 
     try {
-      // 模糊匹配：名称、地址、标签包含关键词
-      const res = await db.collection('hotels').where(_.or([
-        { name: regex },
-        { address: regex },
-        { tags: regex } // 假设 tags 是字符串数组
-      ])).get();
+      let res;
+      let isFallback = false; // 标记是否触发了兜底逻辑
+
+      // A. 如果有搜索词 -> 精准搜索名称
+      if (q) {
+        const regex = db.RegExp({ regexp: q, options: 'i' });
+        
+        // 1. 尝试精准搜索 (只搜名字)
+        res = await db.collection('hotels').where({
+          name: regex
+        }).get();
+
+        // 🟢 2. 恢复兜底逻辑：如果没搜到 -> 查所有 -> 标记兜底
+        if (!res.data || res.data.length === 0) {
+          isFallback = true;
+          res = await db.collection('hotels').get();
+        }
+        
+      } 
+      // B. 如果没有搜索词 -> 查所有
+      else {
+        res = await db.collection('hotels').get();
+      }
 
       let list = res.data || [];
 
-      // ⚡️ 数据处理：确保 render 需要的字段存在
+      // 数据格式化 (补全 ID 和 评分)
       const formattedList = list.map(hotel => {
-        // 如果房间没有 ID，临时生成一个，确保预订功能正常
         const roomList = (hotel.roomList || []).map((room, idx) => ({
           ...room,
-          id: room.id || `${hotel._id}_${idx}` // 兜底生成 ID
+          id: room.id || `${hotel._id}_${idx}` 
         }));
         
         return {
           ...hotel,
           roomList,
-          score: hotel.score || '4.8' // 默认评分兜底
+          score: hotel.score || '4.8'
         };
       });
 
-      this.setData({ results: formattedList });
+      this.setData({ 
+        results: formattedList,
+        showFallbackHint: isFallback // 🟢 设置提示状态
+      });
+
     } catch (err) {
       console.error('搜索出错', err);
       wx.showToast({ title: '搜索失败', icon: 'none' });
@@ -99,7 +119,6 @@ Page({
     }
   },
 
-  // 跳转详情页
   navToDetail(e) {
     const spuId = e.currentTarget.dataset.id;
     if (spuId) {
@@ -107,16 +126,13 @@ Page({
     }
   },
 
-  // --- 👇 以下是复刻的预订逻辑 👇 ---
-
+  // --- 预订逻辑 (保持不变) ---
   openBookingPopup(e) {
+    const { roomid, roomname, roomprice } = e.currentTarget.dataset;
+    if (!roomid) return;
     const app = getApp();
-    // 简单的登录检查
     if (app && app.checkLogin && !app.checkLogin()) return;
 
-    const { roomId, roomName, roomPrice } = e.currentTarget.dataset;
-    
-    // 默认选中：今天入住，明天离店
     const today = new Date();
     const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
     const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -126,9 +142,9 @@ Page({
 
     this.setData({
       showBookingPopup: true,
-      selectedRoomId: roomId,
-      selectedRoomName: roomName,
-      selectedRoomPrice: roomPrice,
+      selectedRoomId: roomid,
+      selectedRoomName: roomname,
+      selectedRoomPrice: Number(roomprice),
       selectedCheckInDate: defaultCheckIn,
       selectedCheckOutDate: defaultCheckOut,
     });
@@ -147,53 +163,36 @@ Page({
   },
 
   async submitBooking() {
-    const { selectedCheckInDate, selectedCheckOutDate, selectedRoomId, selectedRoomPrice, maxDateStr } = this.data;
-    
-    if (!selectedCheckInDate || !selectedCheckOutDate) {
-      wx.showToast({ title: '请完善日期', icon: 'none' });
-      return;
-    }
+     const { selectedCheckInDate, selectedCheckOutDate, selectedRoomId, selectedRoomPrice, maxDateStr } = this.data;
+     if (!selectedCheckInDate || !selectedCheckOutDate) { wx.showToast({ title: '请完善日期', icon: 'none' }); return; }
+     
+     const checkIn = new Date(selectedCheckInDate).getTime();
+     const checkOut = new Date(selectedCheckOutDate).getTime();
+     const today = new Date().setHours(0,0,0,0);
+     const max = new Date(maxDateStr + 'T00:00:00').getTime();
 
-    const checkIn = new Date(selectedCheckInDate).getTime();
-    const checkOut = new Date(selectedCheckOutDate).getTime();
-    const today = new Date().setHours(0,0,0,0);
-    const max = new Date(maxDateStr + 'T00:00:00').getTime();
+     if (checkIn < today) { wx.showToast({ title: '入住日期无效', icon: 'none' }); return; }
+     if (checkOut <= checkIn) { wx.showToast({ title: '离店日期需晚于入住', icon: 'none' }); return; }
 
-    if (checkIn < today) {
-      wx.showToast({ title: '入住日期无效', icon: 'none' });
-      return;
-    }
-    if (checkOut <= checkIn) {
-      wx.showToast({ title: '离店日期需晚于入住', icon: 'none' });
-      return;
-    }
-    if (checkOut > max) {
-      wx.showToast({ title: '仅限30天内预订', icon: 'none' });
-      return;
-    }
-
-    wx.showLoading({ title: '提交中...' });
-    try {
-      const res = await submitBooking(selectedRoomId, selectedCheckInDate, selectedCheckOutDate, selectedRoomPrice);
-      wx.hideLoading();
-      
-      if (res && res.code === 0) {
-        this.closeBookingPopup();
-        wx.showModal({
-          title: '预订成功',
-          content: '您的房间已锁定，请前往订单查看',
-          confirmText: '看订单',
-          cancelText: '关闭',
-          success: (m) => {
-            if (m.confirm) {
-              wx.switchTab({ url: '/pages/order/order-list/index' });
-            }
-          }
-        });
-      }
-    } catch (err) {
-      wx.hideLoading();
-      wx.showToast({ title: err.message || '预订失败', icon: 'none' });
-    }
+     wx.showLoading({ title: '提交中...' });
+     try {
+       const res = await submitBooking(selectedRoomId, selectedCheckInDate, selectedCheckOutDate, selectedRoomPrice);
+       wx.hideLoading();
+       if (res && res.code === 0) {
+         this.closeBookingPopup();
+         wx.showModal({
+           title: '预订成功',
+           content: '您的房间已锁定，请前往订单查看',
+           confirmText: '看订单',
+           cancelText: '关闭',
+           success: (m) => {
+             if (m.confirm) { wx.switchTab({ url: '/pages/order/order-list/index' }); }
+           }
+         });
+       }
+     } catch (err) {
+       wx.hideLoading();
+       wx.showToast({ title: err.message || '预订失败', icon: 'none' });
+     }
   }
 });
