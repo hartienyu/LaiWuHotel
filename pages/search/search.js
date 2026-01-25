@@ -1,4 +1,5 @@
 import { submitBooking } from '../../services/booking/submitBooking';
+import { searchHotels } from '../../services/booking/searchHotels';
 
 Page({
   data: {
@@ -58,6 +59,7 @@ Page({
   // --- 核心搜索逻辑 ---
   async doSearch() {
     this.setData({ loading: true, showFallbackHint: false });
+<<<<<<< HEAD
     const db = wx.cloud.database();
     const q = (this.data.query || '').trim();
 
@@ -105,6 +107,26 @@ Page({
         showFallbackHint: isFallback 
       });
 
+=======
+
+    const q = (this.data.query || '').trim();
+
+    try {
+      // 使用新的统一搜索服务
+      const result = await searchHotels(q);
+      
+      if (result.success) {
+        this.setData({ 
+          results: result.data,
+          showFallbackHint: result.isFallback // 设置提示状态
+        });
+      } else {
+        console.error('搜索失败:', result.error);
+        wx.showToast({ title: result.error || '搜索失败', icon: 'none' });
+        this.setData({ results: [] });
+      }
+
+>>>>>>> LG
     } catch (err) {
       console.error('搜索出错', err);
       wx.showToast({ title: '搜索失败', icon: 'none' });

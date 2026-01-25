@@ -11,7 +11,7 @@ export default [
   },
   {
     icon: 'cart',
-    text: '订单',
+    text: '我的预订',
     url: 'pages/cart/index',
   },
   {
