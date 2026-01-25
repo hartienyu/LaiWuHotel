@@ -1,7 +1,6 @@
-<view class="login-container">
-  <image class="logo" src="https://i.ibb.co/C3KV0Z5W/logo.jpg" mode="aspectFit"></image>
-  <view class="tips">为了提供更好的服务，请先登录</view>
-  
-  <button class="login-btn" type="primary" bindtap="goToProfile">微信一键登录</button>
-  <button class="cancel-btn" bindtap="goBack">暂不登录</button>
+<!-- pages/login/index.wxml -->
+<view class="page-login">
+  <view class="login-box">
+    <button bindtap="onLoginTap">微信登录并创建账号</button>
+  </view>
 </view>

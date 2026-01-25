@@ -79,29 +79,42 @@ Page({
       .limit(50)
       .get()
       .then((res) => {
-        const orderList = (res.data || []).map((booking) => ({
-          id: booking._id,
-          orderNo: booking.bookingId,
-          status: booking.status,
-          statusDesc: booking.status === 1 ? '待确认' : booking.status === 2 ? '已确认' : '已取消',
-          amount: booking.roomPrice || 0,
-          totalAmount: booking.roomPrice || 0,
-          createTime: booking.createdAt,
-          checkInDate: booking.checkInDate,
-          checkOutDate: booking.checkOutDate,
-          nights: booking.nights || 1,
-          goodsList: [
-            {
-              id: booking._id,
-              thumb: '',
-              title: `民宿预订 (${booking.nights || 1}晚)`,
-              specs: [`入住: ${booking.checkInDate}`, `离店: ${booking.checkOutDate}`],
-              price: booking.roomPrice || 0,
-              num: 1,
-            },
-          ],
-          buttons: [],
-        }));
+        const orderList = (res.data || []).map((booking) => {
+          // roomId 作占位显示（当前 DB 只存 roomId，如需真实酒店/房型名请关联房源集合）
+          const hotelName = booking.roomId || ''; // 如果后续在 DB 写入 hotelName，可改为 booking.hotelName
+          const roomType = booking.roomType || booking.roomId || '';
+
+          return {
+            id: booking._id,
+            orderNo: booking.bookingId,
+            status: booking.status,
+            statusDesc: booking.status === 1 ? '待确认' : booking.status === 2 ? '已确认' : '已取消',
+            amount: booking.roomPrice || 0,
+            totalAmount: booking.roomPrice || 0,
+            createTime: booking.createdAt,
+            checkInDate: booking.checkInDate,
+            checkOutDate: booking.checkOutDate,
+            nights: booking.nights || 1,
+            hotelName, // 新增字段，方便模板直接显示
+            roomType,  // 新增字段
+            goodsList: [
+              {
+                id: booking._id,
+                thumb: '',
+                // 把酒店/房型信息放在 title 或 specs 中，组件通常会显示 goodsList 的 title/specs
+                title: hotelName ? `${hotelName} · ${roomType}` : `民宿预订 (${booking.nights || 1}晚)`,
+                specs: [
+                  `房型: ${roomType}`,
+                  `入住: ${booking.checkInDate}`,
+                  `离店: ${booking.checkOutDate}`,
+                ],
+                price: booking.roomPrice || 0,
+                num: 1,
+              },
+            ],
+            buttons: [],
+          };
+        });
 
         this.setData({
           orderList,

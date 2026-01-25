@@ -6,7 +6,7 @@
     "pages/usercenter/index",
     "pages/login/index",
     "pages/login/profile",
-    "pages/search/search"
+    "pages/search/search" 
   ],
   "subpackages": [
     {

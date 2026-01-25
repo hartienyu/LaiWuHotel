@@ -28,7 +28,7 @@ const orderTagInfos = [
     status: 1,
   },
   {
-    title: '待收货',
+    title: '待收货/使用',
     iconName: 'package',
     orderNum: 0,
     tabType: 40,

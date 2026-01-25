@@ -1,6 +1,11 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\common",
+    "\\components",
+    "\\config",
+    "\\pages",
+    "\\pages\\login"
   ],
   "PreviewInSolutionExplorer": false
 }

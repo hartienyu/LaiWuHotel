@@ -24,11 +24,18 @@
         bindtap="gotoBookingDetail"
         data-booking-id="{{booking.bookingId}}"
       >
-        <view class="booking-dates">
-          <text class="date-label">{{booking.checkInDate}} → {{booking.checkOutDate}}</text>
+        <view class="booking-top">
+          <view class="booking-dates">
+            <text class="date-label">{{booking.checkInDate}} → {{booking.checkOutDate}}</text>
+          </view>
+          <view class="booking-status">
+            <text class="status-badge">{{booking.status === 1 ? '待确认' : booking.status === 2 ? '已确认' : '已取消'}}</text>
+          </view>
         </view>
-        <view class="booking-status">
-          <text class="status-badge">{{booking.status === 1 ? '待确认' : booking.status === 2 ? '已确认' : '已取消'}}</text>
+
+        <!-- 新增：显示下单酒店 / 房型（当前使用 roomId 作为占位） -->
+        <view class="booking-info">
+          <text class="booking-hotel">酒店/房型：{{booking.roomId || '—'}}</text>
         </view>
       </view>
     </view>
