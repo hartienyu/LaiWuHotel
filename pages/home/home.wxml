@@ -13,9 +13,7 @@
     t-class-image="custom-swiper-image"
     bind:click="navToActivityDetail"
   />
-  
   <view class="hero-overlay"></view>
-  
   <view class="hotel-branding">
     <text class="brand-title">山水御苑</text>
     <text class="brand-subtitle">枕山卧水，诗意栖居</text>
@@ -38,22 +36,37 @@
     <view class="card-row date-row" bind:tap="onDateSelect">
       <view class="date-col">
         <text class="date-val">{{checkInDate}}</text>
-        <text class="date-label">周一 入住</text>
+        <view class="date-desc-row">
+          <text class="date-week">{{checkInWeek}}</text>
+          <text class="date-label">入住</text>
+        </view>
       </view>
+
       <view class="date-duration">
         <text class="duration-badge">共{{stayDays}}晚</text>
         <view class="line"></view>
       </view>
+
       <view class="date-col right">
         <text class="date-val">{{checkOutDate}}</text>
-        <text class="date-label">周二 离店</text>
+        <view class="date-desc-row">
+          <text class="date-week">{{checkOutWeek}}</text>
+          <text class="date-label">离店</text>
+        </view>
       </view>
     </view>
 
-    <view class="card-row search-row" bind:tap="navToSearchPage">
+    <view class="card-row search-row">
       <view class="search-fake-input">
         <t-icon name="search" size="40rpx" color="#999" />
-        <text class="placeholder">搜索酒店/地名/关键词</text>
+        <input 
+          class="real-search-input" 
+          placeholder="搜索酒店/地名/关键词" 
+          placeholder-class="placeholder-style" 
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          confirm-type="search"
+        />
       </view>
     </view>
 
@@ -78,10 +91,19 @@
       <text>专属客服</text>
     </view>
   </view>
-
 </view>
 
 <t-toast id="t-toast" />
+
+<t-calendar
+  visible="{{calendarVisible}}"
+  type="range"
+  minDate="{{minDate}}"
+  value="{{[rawStartDate, rawEndDate]}}"
+  bind:confirm="onCalendarConfirm"
+  title="请选择入住/离店日期"
+  confirm-btn="确认选择"
+/>
 
 <t-popup visible="{{showMakePhone}}" placement="bottom" bind:visible-change="closeMakePhone" data-index="2">
   <view class="popup-content">

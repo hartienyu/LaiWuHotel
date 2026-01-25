@@ -1,27 +1,103 @@
 <view class="container">
-  <view class="search-bar">
-    <input class="search-input" placeholder="输入酒店名搜索" value="{{query}}"
-      bindinput="onInput" bindconfirm="onConfirm" />
-    <button class="search-btn" bindtap="onConfirm">搜索</button>
-    <button class="clear-btn" bindtap="onClear">清空</button>
+  <view class="search-header">
+    <t-search 
+      value="{{query}}" 
+      placeholder="搜索酒店 / 地名 / 标签" 
+      bind:change="onInput"
+      bind:submit="onConfirm"
+      bind:clear="onClear"
+      shape="round"
+    />
   </view>
 
-  <view wx:if="{{loading}}" class="loading">搜索中...</view>
+  <view wx:if="{{loading}}" class="loading-state">
+    <t-loading theme="circular" size="40rpx" text="搜索中..." />
+  </view>
 
-  <view wx:if="{{!loading && results.length === 0 && query !== ''}}" class="no-result">
-    未找到匹配的酒店
+  <view wx:if="{{!loading && results.length === 0 && query}}" class="empty-state">
+    <t-icon name="error-circle" size="96rpx" color="#ccc" />
+    <text class="empty-text">未找到相关房源</text>
   </view>
 
   <view class="result-list">
     <block wx:for="{{results}}" wx:key="_id">
-      <view class="result-item" bindtap="openHotel" data-id="{{item._id}}">
-        <image class="thumb" src="{{item.hotelImages && item.hotelImages[0]}}" mode="aspectFill" />
-        <view class="meta">
-          <text class="name">{{item.name}}</text>
-          <text class="address">{{item.address}}</text>
-          <text class="score">匹配度：{{item._matchPercent}}%</text>
+      <view class="hotel-card" bindtap="navToDetail" data-id="{{item._id}}">
+        <image class="hotel-cover" src="{{item.hotelImages[0]}}" mode="aspectFill" lazy-load />
+        
+        <view class="hotel-info">
+          <view class="name-row">
+            <text class="hotel-name">{{item.name}}</text>
+            <view class="score-badge" wx:if="{{item.score}}">
+              <text class="score-num">{{item.score}}</text>
+              <text class="score-unit">分</text>
+            </view>
+          </view>
+
+          <view class="tags-row">
+            <t-tag wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" size="small" variant="light" style="margin-right: 8rpx;">
+              {{tag}}
+            </t-tag>
+          </view>
+          
+          <view class="divider"></view>
+
+          <view class="room-list">
+            <view class="room-item" wx:for="{{item.roomList}}" wx:for-item="room" wx:key="name" wx:if="{{index < 2}}">
+              <image class="room-thumb" src="{{room.roomImages[0]}}" mode="aspectFill" catchtap="true"/>
+              
+              <view class="room-detail">
+                <text class="room-name">{{room.name}}</text>
+                <text class="room-info">{{room.area || 25}}㎡ | 剩{{room.totalCount || 5}}间</text>
+              </view>
+              
+              <view class="room-price">
+                <text class="symbol">¥</text>
+                <text class="num">{{room.price / 100}}</text>
+              </view>
+
+              <view class="booking-btn-wrap" catchtap="openBookingPopup" 
+                data-room-id="{{room.id}}" 
+                data-room-name="{{room.name}}" 
+                data-room-price="{{room.price}}">
+                <t-button theme="primary" size="small" variant="base">预订</t-button>
+              </view>
+            </view>
+          </view>
+
         </view>
       </view>
     </block>
   </view>
+
+  <t-popup visible="{{showBookingPopup}}" placement="bottom" bind:visible-change="closeBookingPopup">
+    <view class="booking-popup">
+      <view class="popup-header">
+        <text class="popup-title">预订 {{selectedRoomName}}</text>
+      </view>
+      
+      <view class="popup-content">
+        <view class="date-picker-wrapper">
+          <text class="label">选择入住/离店日期</text>
+          <view class="date-range-pickers">
+            <picker mode="date" start="{{minDateStr}}" end="{{maxDateStr}}" value="{{selectedCheckInDate}}" bindchange="onCheckInDateChange">
+              <view class="picker picker-left">
+                <text wx:if="{{selectedCheckInDate}}" class="picker-val">入住: {{selectedCheckInDate}}</text>
+                <text wx:else class="picker-placeholder">选择入住</text>
+              </view>
+            </picker>
+            <picker mode="date" start="{{minDateStr}}" end="{{maxDateStr}}" value="{{selectedCheckOutDate}}" bindchange="onCheckOutDateChange">
+              <view class="picker picker-right">
+                <text wx:if="{{selectedCheckOutDate}}" class="picker-val">离店: {{selectedCheckOutDate}}</text>
+                <text wx:else class="picker-placeholder">选择离店</text>
+              </view>
+            </picker>
+          </view>
+        </view>
+        <view class="popup-footer">
+          <t-button theme="default" variant="outline" bind:tap="closeBookingPopup">取消</t-button>
+          <t-button theme="primary" bind:tap="submitBooking">确认预订</t-button>
+        </view>
+      </view>
+    </view>
+  </t-popup>
 </view>

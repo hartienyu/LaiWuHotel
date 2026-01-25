@@ -116,20 +116,81 @@ page {
   color: #666;
 }
 
-/* 日期行 */
+/* --- 日期行样式 --- */
 .date-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8rpx 0;
+  padding: 30rpx 0; /* 增加一点内边距 */
 }
-.date-col { display: flex; flex-direction: column; }
-.date-val { font-size: 34rpx; font-weight: bold; color: #333; }
-.date-label { font-size: 22rpx; color: #999; margin-top: 6rpx; }
-.right { text-align: right; align-items: flex-end; }
-.date-duration { display: flex; flex-direction: column; align-items: center; width: 120rpx; }
-.duration-badge { font-size: 20rpx; background: #f0f0f0; padding: 4rpx 16rpx; border-radius: 20rpx; color: #666; margin-bottom: 8rpx; }
-.line { width: 100%; height: 2rpx; background: #eee; }
+
+.date-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-col.right {
+  align-items: flex-end; /* 右侧对齐 */
+}
+
+.date-val {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  line-height: 1.2;
+}
+
+/* 🟢 新增：日期描述行 (周几 + 入住/离店) */
+.date-desc-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+}
+
+.date-week {
+  font-size: 24rpx;
+  color: #333;
+  margin-right: 8rpx; /* 周几和标签的间距 */
+}
+
+/* 如果是右侧（离店），周几在标签左边，或者反过来，
+   这里默认左对齐显示： "周一 入住" */
+.date-col.right .date-week {
+  margin-right: 8rpx;
+}
+
+.date-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* --- 中间的天数样式 --- */
+.date-duration {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 20rpx;
+}
+
+.duration-badge {
+  font-size: 22rpx;
+  color: #333;
+  background: #fff;
+  border: 1rpx solid #e0e0e0;
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  position: relative;
+  z-index: 2;
+}
+
+.line {
+  width: 100%;
+  height: 1rpx;
+  background: #eee;
+  margin-top: -12rpx; /* 让线穿过 Badge 的下方视觉中心 */
+  z-index: 1;
+}
 
 /* 搜索框 */
 .search-fake-input {
@@ -141,6 +202,21 @@ page {
   padding: 0 30rpx;
 }
 .placeholder { font-size: 26rpx; color: #bbb; margin-left: 16rpx; }
+
+/* 🟢 新增：真正的输入框样式 */
+.real-search-input {
+  flex: 1; /* 填满剩余空间 */
+  height: 100%;
+  margin-left: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 🟢 新增：占位符样式（替代原来的 .placeholder 类） */
+.placeholder-style {
+  color: #bbb;
+  font-size: 26rpx;
+}
 
 /* 按钮 */
 .booking-btn {

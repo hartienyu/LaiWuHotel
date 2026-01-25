@@ -1,3 +1,11 @@
 {
-  "navigationBarTitleText": "搜索民宿"
+  "navigationBarTitleText": "搜索民宿",
+  "usingComponents": {
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-tag": "tdesign-miniprogram/tag/tag"
+  }
 }
