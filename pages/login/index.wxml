@@ -1,4 +1,13 @@
-<view class="login-container">
+<view class="custom-navbar" style="height: {{statusBarHeight + navBarHeight}}px; padding-top: {{statusBarHeight}}px;">
+  <view class="nav-content" style="height: {{navBarHeight}}px;">
+    <view class="back-icon-wrap" bindtap="goBack">
+      <text class="back-arrow">〈</text>
+    </view>
+    <text class="nav-title">登陆</text>
+  </view>
+</view>
+
+<view class="login-container" style="padding-top: {{statusBarHeight + navBarHeight + 60}}px;">
   <image class="logo" src="https://i.ibb.co/C3KV0Z5W/logo.jpg" mode="aspectFit"></image>
   <view class="tips">为了提供更好的服务，请先登录</view>
   

@@ -29,6 +29,18 @@
       />
     </view>
 
+    <view class="divider"></view>
+
+    <picker bindchange="onGenderChange" value="{{genderIndex}}" range="{{genderOptions}}">
+      <view class="input-row">
+        <view class="label">性别</view>
+        <view class="nickname-input" style="{{genderText ? '' : 'color: #ccc;'}}">
+          {{genderText || '请选择性别'}}
+        </view>
+        <text class="arrow">></text>
+      </view>
+    </picker>
+
   </view>
 
   <view class="footer">

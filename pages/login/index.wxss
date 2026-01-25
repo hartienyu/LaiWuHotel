@@ -1,15 +1,55 @@
+/* 自定义导航栏样式 */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  z-index: 999;
+  box-sizing: border-box;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 标题居中 */
+  position: relative;
+}
+
+.back-icon-wrap {
+  position: absolute;
+  left: 20rpx;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+}
+
+.back-arrow {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #000;
+}
+
+.nav-title {
+  font-size: 34rpx;
+  font-weight: 500;
+  color: #000;
+}
+
+/* 原有样式调整 */
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 200rpx;
+  /* padding-top 由 wxml行内样式控制 */
 }
 .logo { width: 150rpx; height: 150rpx; margin-bottom: 40rpx; }
 .tips { font-size: 28rpx; color: #666; margin-bottom: 80rpx; }
 .login-btn { 
   width: 80% !important; 
   background-color: #07c160;
-  color: #ffffff; 
+  color: #ffffff;
   border-radius: 40rpx; 
   font-weight: bold;
   font-size: 32rpx;
@@ -19,7 +59,7 @@
   width: 80% !important; 
   background-color: #f2f2f2;
   color: #07c160;
-  border-radius: 40rpx; 
+  border-radius: 40rpx;
   margin-top: 30rpx; 
   font-size: 32rpx;
   font-weight: bold;

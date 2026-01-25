@@ -2,11 +2,22 @@ import Toast from 'tdesign-miniprogram/toast/index';
 
 Page({
   data: {
-    tabs: [
-      { key: -1, text: '全部订单' },
-      { key: 1, text: '待确认' },
-      { key: 2, text: '已确认' },
-      { key: 3, text: '已取消' },
+    tabs: [{
+        key: -1,
+        text: '全部订单'
+      },
+      {
+        key: 1,
+        text: '待确认'
+      },
+      {
+        key: 2,
+        text: '已确认'
+      },
+      {
+        key: 3,
+        text: '已取消'
+      },
     ],
     curTab: -1,
     bookingList: [],
@@ -22,11 +33,14 @@ Page({
     this.getTabBar().init();
     if (!this.data.backRefresh) return;
     this.onRefresh();
-    this.setData({ backRefresh: false });
+    this.setData({
+      backRefresh: false
+    });
   },
 
   onLoad() {
     this.init();
+    // 确保页面有 id="wr-pull-down-refresh" 的组件，否则这里会报错
     this.pullDownRefresh = this.selectComponent('#wr-pull-down-refresh');
   },
 
@@ -35,39 +49,55 @@ Page({
   },
 
   onPullDownRefresh_() {
-    this.setData({ pullDownRefreshing: true });
+    this.setData({
+      pullDownRefreshing: true
+    });
     this.getBookingList(this.data.curTab)
       .then(() => {
-        this.setData({ pullDownRefreshing: false });
+        this.setData({
+          pullDownRefreshing: false
+        });
       })
       .catch((err) => {
-        this.setData({ pullDownRefreshing: false });
+        this.setData({
+          pullDownRefreshing: false
+        });
         Promise.reject(err);
       });
   },
 
   init(status) {
     status = status !== undefined ? status : this.data.curTab;
-    this.setData({ status });
+    this.setData({
+      status
+    });
     this.getBookingList(status);
   },
 
   getBookingList(statusCode = -1) {
-    this.setData({ listLoading: 1 });
+    this.setData({
+      listLoading: 1
+    });
     const db = wx.cloud.database();
     const userOpenId = wx.getStorageSync('userOpenId');
-    
+
     if (!userOpenId) {
       console.error('用户ID未找到');
-      this.setData({ listLoading: 3 });
+      this.setData({
+        listLoading: 3
+      });
       return Promise.reject(new Error('用户ID未找到'));
     }
 
-    let query = db.collection('inn_booking').where({ userId: userOpenId });
+    let query = db.collection('inn_booking').where({
+      userId: userOpenId
+    });
 
     // 按状态筛选
     if (statusCode !== -1) {
-      query = query.where({ status: statusCode });
+      query = query.where({
+        status: statusCode
+      });
     }
 
     return query
@@ -89,16 +119,14 @@ Page({
           roomName: booking.roomName || '民宿房间',
           guestName: booking.guestName || '游客',
           guestPhone: booking.guestPhone || '',
-          goodsList: [
-            {
-              id: booking._id,
-              thumb: booking.roomImage || '',
-              title: `${booking.roomName || '民宿房间'} (${booking.nights || 1}晚)`,
-              specs: [`入住: ${booking.checkInDate}`, `离店: ${booking.checkOutDate}`],
-              price: booking.roomPrice || 0,
-              num: 1,
-            },
-          ],
+          goodsList: [{
+            id: booking._id,
+            thumb: booking.roomImage || '',
+            title: `${booking.roomName || '民宿房间'} (${booking.nights || 1}晚)`,
+            specs: [`入住: ${booking.checkInDate}`, `离店: ${booking.checkOutDate}`],
+            price: booking.roomPrice || 0,
+            num: 1,
+          }, ],
           buttons: [],
         }));
 
@@ -110,7 +138,9 @@ Page({
       })
       .catch((err) => {
         console.error('获取预订列表失败:', err);
-        this.setData({ listLoading: 3 });
+        this.setData({
+          listLoading: 3
+        });
       });
   },
 
@@ -119,8 +149,12 @@ Page({
   },
 
   onTabChange(e) {
-    const { value } = e.detail;
-    this.setData({ status: value });
+    const {
+      value
+    } = e.detail;
+    this.setData({
+      status: value
+    });
     this.getBookingList(value);
   },
 
@@ -129,57 +163,18 @@ Page({
   },
 
   onOrderCardTap(e) {
-    const { order } = e.currentTarget.dataset;
+    const {
+      order
+    } = e.currentTarget.dataset;
     wx.navigateTo({
       url: `/pages/order/order-detail/index?orderNo=${order.orderNo}`,
     });
   },
-});
-    // 实际场景时应该调用接口清空失效商品
-    this.clearInvalidGoodsService().then(() => this.refreshData());
-  },
 
-  onGoodsDelete(e) {
-    const {
-      goods: { spuId, skuId },
-    } = e.detail;
-    Dialog.confirm({
-      content: '确认删除该商品吗?',
-      confirmBtn: '确定',
-      cancelBtn: '取消',
-    }).then(() => {
-      this.deleteGoodsService({ spuId, skuId }).then(() => {
-        Toast({ context: this, selector: '#t-toast', message: '商品删除成功' });
-        this.refreshData();
-      });
-    });
-  },
-
-  onSelectAll(event) {
-    const { isAllSelected } = event?.detail ?? {};
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: `${isAllSelected ? '取消' : '点击'}了全选按钮`,
-    });
-    // 调用接口改变全选
-  },
-
-  onToSettle() {
-    const goodsRequestList = [];
-    this.data.cartGroupData.storeGoods.forEach((store) => {
-      store.promotionGoodsList.forEach((promotion) => {
-        promotion.goodsPromotionList.forEach((m) => {
-          if (m.isSelected == 1) {
-            goodsRequestList.push(m);
-          }
-        });
-      });
-    });
-    wx.setStorageSync('order.goodsRequestList', JSON.stringify(goodsRequestList));
-    wx.navigateTo({ url: '/pages/order/order-confirm/index?type=cart' });
-  },
+  // 这是一个通用的跳转首页方法，通常用于空列表时的“去逛逛”按钮
   onGotoHome() {
-    wx.switchTab({ url: '/pages/home/home' });
+    wx.switchTab({
+      url: '/pages/home/home'
+    });
   },
 });

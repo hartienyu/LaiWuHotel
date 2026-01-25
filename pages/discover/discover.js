@@ -110,10 +110,6 @@ Page({
 
   // 开启预订弹窗
   openBookingPopup(e) {
-    // 强制登录
-    const app = getApp();
-    if (!app.checkLogin()) return;
-
     const { roomId, roomName, roomPrice } = e.currentTarget.dataset;
     // 如果未选择，默认填充为今天-明天
     const today = new Date();
