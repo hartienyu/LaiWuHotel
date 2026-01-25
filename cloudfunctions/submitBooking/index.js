@@ -40,7 +40,7 @@ exports.main = async (event) => {
     }
 
     const record = debugQuery.data[0];
-    if (record.availableCount <= 0) {
+    if (record.currentStock <= 0) {
       return {
         code: -1,
         message: `调试失败: 房间 [${roomId}] 在 [${checkInDate}] 的库存为 0，无法预订。`
@@ -65,7 +65,7 @@ exports.main = async (event) => {
       inventoryDate: checkInDate
     }).update({
       data: {
-        availableCount: db.command.inc(-1)
+        currentStock: db.command.inc(-1)
       }
     });
 

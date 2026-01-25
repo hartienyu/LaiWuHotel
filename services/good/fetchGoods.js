@@ -13,7 +13,7 @@ export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
       
       const list = res.data;
       
-      // 收集需要换取链接的 CloudID
+      // --- 1. 图片链接转换逻辑 (保持不变) ---
       let cloudIDs = [];
       list.forEach(item => {
         if (Array.isArray(item.hotelImages)) {
@@ -42,24 +42,22 @@ export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
         }
       }
 
-      let globalRoomCounter = 1;
+      // 🔴 删除：let globalRoomCounter = 1;  <-- 罪魁祸首删掉
 
-      // 3. 格式化数据并注入 ID
+      // --- 2. 格式化数据 ---
       const formattedList = list.map(item => {
         const replaceImgs = (imgs) => (imgs || []).map(id => urlMap[id] || id);
 
         // 处理房间列表
         const newRoomList = (item.roomList || []).map(room => {
           
-          // ✅ 生成格式为 room-001, room-002 的 ID
-          const idSuffix = String(globalRoomCounter).padStart(3, '0'); // 补齐3位，如 001
-          const finalId = `room-${idSuffix}`; 
-          
-          globalRoomCounter++; // 计数器加 1
+          // 🟢 修复：直接使用数据库里的 room.id
+          // 只有当数据库里真的没 id 时，才临时生成一个作为兜底，防止报错
+          const realId = room.id || `${item._id}_${Math.random().toString(36).substr(2, 5)}`;
 
           return {
             ...room,
-            id: finalId, // 注入生成的 ID
+            id: realId, // 🟢 这里一定要用真实的 ID
             roomImages: replaceImgs(room.roomImages)
           };
         });

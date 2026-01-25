@@ -84,14 +84,20 @@ Page({
 
       let list = res.data || [];
 
-      // 数据处理
       const formattedList = list.map(hotel => {
-        const roomList = (hotel.roomList || []).map((room, idx) => ({
+        // 确保 roomList 存在
+        const roomList = (hotel.roomList || []).map(room => ({
           ...room,
-          id: room.id || `${hotel._id}_${idx}` 
+          // 如果数据库里已经有了 id (例如 "hotel_1-room_1")，直接用；否则兜底用旧逻辑
+          // 这里的 .id 是新 JSON 中的字段
+          id: room.id || `${hotel._id}_${Math.random().toString(36).substr(2, 5)}`
         }));
         
-        return { ...hotel, roomList, score: hotel.score || '4.8' };
+        return {
+          ...hotel,
+          roomList,
+          score: hotel.score || '4.8'
+        };
       });
 
       this.setData({ 
@@ -117,17 +123,17 @@ Page({
   // --- 预订弹窗逻辑 ---
 
   openBookingPopup(e) {
-    console.log('👉 点击了预订按钮，参数:', e.currentTarget.dataset);
+    console.log('👉 点击预订，dataset:', e.currentTarget.dataset);
 
     const app = getApp();
-    // 登录检查 (如果您需要开启，请解开注释)
-    // if (app && app.checkLogin && !app.checkLogin()) return; 
+    // if (app && app.checkLogin && !app.checkLogin()) return; // 登录拦截
 
+    // WXML 中 data-roomid 会转换为 dataset.roomid (全小写)
     const { roomid, roomname, roomprice } = e.currentTarget.dataset;
     
     if (!roomid) {
-      console.error('❌ 缺少 roomid，请检查 wxml 中的 data-roomid');
-      wx.showToast({ title: '系统错误: 缺少ID', icon: 'none' });
+      console.error('❌ 未获取到 roomid，请检查 JSON 数据中 roomList 是否包含 id 字段');
+      wx.showToast({ title: '数据错误: 缺少房间ID', icon: 'none' });
       return;
     }
 
@@ -140,13 +146,12 @@ Page({
 
     this.setData({
       showBookingPopup: true,
-      selectedRoomId: roomid,
+      selectedRoomId: roomid,       // 这里直接就是 "hotel_1-room_1" 这种格式
       selectedRoomName: roomname,
       selectedRoomPrice: Number(roomprice),
       selectedCheckInDate: defaultCheckIn,
       selectedCheckOutDate: defaultCheckOut,
     });
-    console.log('✅ 弹窗已打开');
   },
 
   closeBookingPopup() {
@@ -160,8 +165,6 @@ Page({
   onCheckOutDateChange(e) {
     this.setData({ selectedCheckOutDate: e.detail.value });
   },
-
-  // 🔴 删除了 submitBookingAPI 包装方法，因为不需要它
 
   async submitBooking() {
      const { selectedCheckInDate, selectedCheckOutDate, selectedRoomId, selectedRoomPrice, maxDateStr } = this.data;
@@ -186,11 +189,11 @@ Page({
 
      wx.showLoading({ title: '提交中...' });
      try {
-       // 🟢 修复：直接调用 import 进来的 submitBooking 函数
+       // 🟢 直接调用，传入的 selectedRoomId 已经是正确的格式 (如 hotel_1-room_1)
        const res = await submitBooking(selectedRoomId, selectedCheckInDate, selectedCheckOutDate, selectedRoomPrice);
+       
        wx.hideLoading();
        
-       // 这里 res 是对象 { code: 0, ... }，判断逻辑正确
        if (res) {
         // 预订成功，显示弹窗并跳转到订单列表
         wx.showModal({
@@ -209,7 +212,7 @@ Page({
             }, 500);
           }
         });
-       }
+      }
      } catch (err) {
        wx.hideLoading();
        console.error(err);
