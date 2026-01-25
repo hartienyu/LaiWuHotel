@@ -39,16 +39,16 @@
                 <text class="num">{{room.price / 100}}</text>
               </view>
 
-              <!-- 预订按钮 -->
               <view class="booking-btn-wrap">
                 <t-button
                   theme="primary"
                   size="small"
                   variant="base"
-                  bind:tap="openBookingPopup"
+                  catch:tap="openBookingPopup"
                   data-room-id="{{room.id}}"
                   data-room-name="{{room.name}}"
                   data-room-price="{{room.price}}"
+                  data-hotel-name="{{item.name}}" 
                 >
                   预订
                 </t-button>
@@ -62,7 +62,6 @@
 
   <load-more list-is-empty="{{!goodsList.length}}" status="{{goodsListLoadStatus}}" bind:retry="onReTry" />
 
-  <!-- 预订弹窗 -->
   <t-popup
     visible="{{showBookingPopup}}"
     placement="bottom"

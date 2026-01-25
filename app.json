@@ -14,8 +14,6 @@
       "name": "user",
       "pages": [
         "person-info/index",
-        "address/list/index",
-        "address/edit/index",
         "name-edit/index"
       ]
     },

@@ -4,9 +4,11 @@
  * @param {String} checkInDate 入住日期 (YYYY-MM-DD 格式)
  * @param {String} checkOutDate 离店日期 (YYYY-MM-DD 格式)
  * @param {Number} roomPrice 房间价格（分）
+ * @param {String} hotelName 酒店名称
+ * @param {String} roomName 房间名称
  * @returns {Promise} 预订结果
  */
-export const submitBooking = (roomId, checkInDate, checkOutDate, roomPrice = 0) => {
+export const submitBooking = (roomId, checkInDate, checkOutDate, roomPrice = 0, hotelName = '', roomName = '') => {
   return new Promise((resolve, reject) => {
     if (!roomId || !checkInDate || !checkOutDate) {
       return reject(new Error('参数缺失：roomId、checkInDate 和 checkOutDate 必填'));
@@ -21,7 +23,7 @@ export const submitBooking = (roomId, checkInDate, checkOutDate, roomPrice = 0) 
 
     wx.cloud.callFunction({
       name: 'submitBooking',
-      data: { roomId, checkInDate, checkOutDate, roomPrice },
+      data: { roomId, checkInDate, checkOutDate, roomPrice, hotelName, roomName }, // 🟢 传递新参数
       success: (res) => {
         if (res && res.result) {
           resolve(res.result);
@@ -34,13 +36,6 @@ export const submitBooking = (roomId, checkInDate, checkOutDate, roomPrice = 0) 
   });
 };
 
-/**
- * 获取房间库存信息（按日期）
- * @param {String} roomId 房间 ID
- * @param {String} startDate 开始日期 (YYYY-MM-DD)
- * @param {String} endDate 结束日期 (YYYY-MM-DD)
- * @returns {Promise} 库存信息
- */
 export const getRoomInventory = (roomId, startDate, endDate) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -49,9 +44,7 @@ export const getRoomInventory = (roomId, startDate, endDate) => {
         message: '成功',
         data: {
           roomId,
-          inventoryList: [
-            // 示例格式：{ date: '2026-01-25', available: 5 }
-          ],
+          inventoryList: [],
         },
       });
     }, 500);
