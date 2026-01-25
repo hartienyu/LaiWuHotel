@@ -1,13 +1,14 @@
 import { fetchUserCenter } from '../../services/usercenter/fetchUsercenter';
 import Toast from 'tdesign-miniprogram/toast/index';
 
+// 🟢 修改点1：将“旅客信息”改为“联系客服”，并修改 type 为 'service'
 const menuData = [
   [
     {
-      title: '旅客信息',
+      title: '联系客服',
       tit: '',
-      url: '/pages/user/name-edit/index',
-      type: 'guest',
+      url: '', 
+      type: 'service',
     },
   ],
 ];
@@ -63,7 +64,7 @@ const getDefaultData = () => ({
   currAuthStep: 1,
   showKefu: true,
   versionNo: '',
-  bookings: [], // 用户的预订记录
+  bookings: [], 
 });
 
 Page({
@@ -90,7 +91,6 @@ Page({
   },
 
   fetUseriInfoHandle() {
-    // 优先读取本地缓存的用户信息
     const localUserInfo = wx.getStorageSync('userInfo');
 
     fetchUserCenter().then(({ userInfo, countsData, orderTagInfos: orderInfo, customerServiceInfo }) => {
@@ -108,9 +108,8 @@ Page({
         ...orderInfo[index],
       }));
 
-      // 如果有本地登录信息，覆盖接口返回的默认信息
       let finalUserInfo = userInfo;
-      let finalAuthStep = 2; // 默认为已登录状态
+      let finalAuthStep = 2; 
 
       if (localUserInfo) {
         finalUserInfo = {
@@ -118,11 +117,9 @@ Page({
           ...localUserInfo
         };
       } else {
-        // 如果没有本地缓存，可能是未登录状态
-        // 检查 app.globalData.isLogin
         const app = getApp();
         if (!app.globalData.isLogin) {
-           finalAuthStep = 1; // 未登录
+           finalAuthStep = 1; 
            finalUserInfo = { nickName: '请登录', avatarUrl: '' };
         }
       }
@@ -138,11 +135,15 @@ Page({
     });
   },
 
-  // ... 剩余代码保持不变 (onClickCell, jumpNav, jumpAllOrder, loadUserBookings, gotoBookingDetail, openMakePhone, closeMakePhone, call, gotoUserEditPage, getVersionInfo)
   onClickCell({ currentTarget }) {
     const { type } = currentTarget.dataset;
 
     switch (type) {
+      // 🟢 修改点2：新增 'service' 类型的处理逻辑，调用 openMakePhone 打开弹窗
+      case 'service': {
+        this.openMakePhone();
+        break;
+      }
       case 'guest': {
         wx.navigateTo({ url: '/pages/user/name-edit/index' });
         break;
@@ -172,20 +173,13 @@ Page({
     wx.navigateTo({ url: '/pages/order/order-list/index' });
   },
 
-  // 加载用户预订记录
   loadUserBookings() {
     const db = wx.cloud.database();
-    // 注意：之前是 userId: wx.getStorageSync('userOpenId')，现在我们用 userInfo._openid 或 云函数获取
-    // 假设已经登录且有 openid 权限
     db.collection('inn_booking')
       .where({
-        // userId: wx.getStorageSync('userOpenId') || '' 
-        // 简化处理：通常在云开发中，小程序端查询会自动带上 _openid 过滤，如果字段本身就是 _openid 创建的
-        // 如果字段是 userId，需要确保 login 时存入了 userOpenId
-        // 这里暂时保持原样，或者您可以改为查所有自己的记录：
         _openid: '{openid}' 
       })
-      .orderBy('createTime', 'desc') // 注意：原来的代码可能是 createdAt，云函数生成的是 createTime
+      .orderBy('createTime', 'desc') 
       .limit(10)
       .get()
       .then((res) => {
@@ -197,10 +191,7 @@ Page({
       });
   },
 
-  // 点击预订卡片跳转到订单详情
   gotoBookingDetail(e) {
-    // 假设详情页需要 ID
-    // wx.navigateTo({ url: `/pages/order/order-detail/index?orderNo=${bookingId}` });
     console.log('点击预订详情', e);
   },
 
@@ -223,7 +214,6 @@ Page({
     if (currAuthStep === 2) {
       wx.navigateTo({ url: '/pages/user/person-info/index' });
     } else {
-      // 未登录去登录
       wx.navigateTo({ url: '/pages/login/index' });
     }
   },
