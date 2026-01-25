@@ -159,7 +159,6 @@ Page({
     }
 
     try {
-      // 🟢 关键点：这里必须传 selectedHotelName 和 selectedRoomName
       const res = await this.submitBookingAPI(
         selectedRoomId, 
         selectedCheckInDate, 
@@ -168,6 +167,8 @@ Page({
         selectedHotelName, 
         selectedRoomName
       );
+
+      console.log('预订API返回结果(res):', res);
 
       if (res) {
         wx.showModal({
@@ -197,12 +198,21 @@ Page({
 
   async submitBookingAPI(roomId, checkInDate, checkOutDate, roomPrice, hotelName, roomName) {
     try {
-      // 调用 service 层
+      // 1. 调用 service 层
       const res = await submitBooking(roomId, checkInDate, checkOutDate, roomPrice, hotelName, roomName);
-      return res && res.code === 0;
+      
+      // 2. 检查结果
+      if (res && res.code === 0) {
+        return true; // 成功，返回 true 进入 if(res)
+      } else {
+        // 🔴 关键修复：如果 code 不是 0，主动抛出错误！
+        // 这样外面的 catch (err) 才能捕获到，并弹出 wx.showModal 提示
+        const errMsg = (res && res.message) ? res.message : '预订失败，请重试';
+        throw new Error(errMsg);
+      }
     } catch (err) {
       console.error('API Error:', err);
-      throw err;
+      throw err; // 必须继续向上抛出，外层的 submitBooking 方法才能捕获
     }
   },
 });

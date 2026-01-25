@@ -206,6 +206,10 @@ Page({
            }
          });
        }
+       else{
+        const errMsg = (res && res.message) ? res.message : '预订失败，请重试';
+        throw new Error(errMsg);
+       }
      } catch (err) {
        wx.hideLoading();
        console.error(err);
