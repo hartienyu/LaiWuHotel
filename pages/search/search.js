@@ -1,4 +1,5 @@
 import { submitBooking } from '../../services/booking/submitBooking';
+import { searchHotels } from '../../services/booking/searchHotels';
 
 Page({
   data: {
@@ -62,54 +63,22 @@ Page({
     // 每次搜索前，先显示 loading，并重置提示
     this.setData({ loading: true, showFallbackHint: false });
 
-    const db = wx.cloud.database();
     const q = (this.data.query || '').trim();
 
     try {
-      let res;
-      let isFallback = false; // 标记是否触发了兜底逻辑
-
-      // A. 如果有搜索词 -> 精准搜索名称
-      if (q) {
-        const regex = db.RegExp({ regexp: q, options: 'i' });
-        
-        // 1. 尝试精准搜索 (只搜名字)
-        res = await db.collection('hotels').where({
-          name: regex
-        }).get();
-
-        // 🟢 2. 恢复兜底逻辑：如果没搜到 -> 查所有 -> 标记兜底
-        if (!res.data || res.data.length === 0) {
-          isFallback = true;
-          res = await db.collection('hotels').get();
-        }
-        
-      } 
-      // B. 如果没有搜索词 -> 查所有
-      else {
-        res = await db.collection('hotels').get();
+      // 使用新的统一搜索服务
+      const result = await searchHotels(q);
+      
+      if (result.success) {
+        this.setData({ 
+          results: result.data,
+          showFallbackHint: result.isFallback // 设置提示状态
+        });
+      } else {
+        console.error('搜索失败:', result.error);
+        wx.showToast({ title: result.error || '搜索失败', icon: 'none' });
+        this.setData({ results: [] });
       }
-
-      let list = res.data || [];
-
-      // 数据格式化 (补全 ID 和 评分)
-      const formattedList = list.map(hotel => {
-        const roomList = (hotel.roomList || []).map((room, idx) => ({
-          ...room,
-          id: room.id || `${hotel._id}_${idx}` 
-        }));
-        
-        return {
-          ...hotel,
-          roomList,
-          score: hotel.score || '4.8'
-        };
-      });
-
-      this.setData({ 
-        results: formattedList,
-        showFallbackHint: isFallback // 🟢 设置提示状态
-      });
 
     } catch (err) {
       console.error('搜索出错', err);

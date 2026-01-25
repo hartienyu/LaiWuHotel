@@ -1,31 +1,98 @@
-<!-- 分层购物车 -->
-<block wx:if="{{cartGroupData.isNotEmpty}}">
-  <cart-group
-    store-goods="{{ cartGroupData.storeGoods }}"
-    invalid-good-items="{{ cartGroupData.invalidGoodItems }}"
-    bindselectgoods="onGoodsSelect"
-    bindselectstore="onStoreSelect"
-    bindchangequantity="onQuantityChange"
-    bindgocollect="goCollect"
-    bindgoodsclick="goGoodsDetail"
-    bindclearinvalidgoods="clearInvalidGoods"
-    binddelete="onGoodsDelete"
-  />
-
-  <view class="gap" />
-  <!-- 商品小计以及结算按钮 -->
-  <cart-bar
-    is-all-selected="{{cartGroupData.isAllSelected}}"
-    total-amount="{{cartGroupData.totalAmount}}"
-    total-goods-num="{{cartGroupData.selectedGoodsCount}}"
-    total-discount-amount="{{cartGroupData.totalDiscountAmount}}"
-    fixed="{{true}}"
-    bottomHeight="{{110}}"
-    bindhandleSelectAll="onSelectAll"
-    bindhandleToSettle="onToSettle"
-  />
-</block>
-<!-- 购物车空态 -->
-<cart-empty wx:else bind:handleClick="onGotoHome" />
+<view class="page-container">
+  <view class="tab-bar">
+    <view class="tab-bar__placeholder" />
+    <t-tabs
+      t-class="tab-bar__inner"
+      t-class-active="tab-bar__active"
+      t-class-track="t-tabs-track"
+      bind:change="onTabChange"
+      value="{{status}}"
+      style="position: fixed; top: 0; left: 0; z-index: 100"
+    >
+      <t-tab-panel
+        wx:for="{{tabs}}"
+        wx:for-index="index"
+        wx:for-item="item"
+        wx:key="index"
+        label="{{item.text}}"
+        value="{{item.key}}"
+      />
+    </t-tabs>
+  </view>
+  <t-pull-down-refresh
+    id="pull-down-refresh"
+    normal-bar-height="{{200}}"
+    max-bar-height="{{272}}"
+    refreshTimeout="{{3000}}"
+    background="#f5f5f5"
+    use-loading-slot
+    loading-size="60rpx"
+    value="{{pullDownRefreshing}}"
+    bindrefresh="onPullDownRefresh_"
+    t-class-indicator="t-class-indicator"
+  >
+    <order-card
+      wx:for="{{bookingList}}"
+      wx:key="id"
+      wx:for-item="order"
+      wx:for-index="oIndex"
+      order="{{order}}"
+      defaultShowNum="{{3}}"
+      data-order="{{order}}"
+      bindcardtap="onOrderCardTap"
+      useLogoSlot
+    >
+      <view slot="top-left" class="order-number">
+        <text decode>预订号&nbsp;</text>
+        {{order.orderNo}}
+      </view>
+      <specs-goods-card
+        wx:for="{{order.goodsList}}"
+        wx:key="id"
+        wx:for-item="goods"
+        wx:for-index="gIndex"
+        goods="{{goods}}"
+        no-top-line="{{gIndex === 0}}"
+      />
+      <view slot="bottom-right" class="order-button">
+        <t-button 
+          theme="primary" 
+          size="small"
+          bindtap="onOrderCardTap"
+          data-order="{{order}}"
+        >
+          查看详情
+        </t-button>
+      </view>
+    </order-card>
+    
+    <!-- 加载状态 -->
+    <block wx:if="{{listLoading === 1}}">
+      <loading-content />
+    </block>
+    
+    <!-- 列表为空 -->
+    <block wx:elif="{{listLoading === 2}}">
+      <t-empty
+        image="{{emptyImg}}"
+        description="暂无预订订单"
+        t-class-description="t-empty-description"
+      />
+    </block>
+    
+    <!-- 加载失败 -->
+    <block wx:elif="{{listLoading === 3}}">
+      <t-empty
+        image="{{emptyImg}}"
+        description="加载失败，请重试"
+        t-class-description="t-empty-description"
+      >
+        <view slot="footer" class="retry-btn">
+          <t-button theme="primary" bindtap="onReTryLoad">重新加载</t-button>
+        </view>
+      </t-empty>
+    </block>
+  </t-pull-down-refresh>
+</view>
 <t-toast id="t-toast" />
 <t-dialog id="t-dialog" />

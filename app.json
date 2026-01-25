@@ -25,11 +25,9 @@
       "pages": [
         "list/index",
         "details/index",
-        "search/index",
         "result/index",
         "comments/index",
-        "comments/create/index",
-        "search/fetchsearchresults"
+        "comments/create/index"
       ]
     },
     {

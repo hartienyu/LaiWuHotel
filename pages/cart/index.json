@@ -1,10 +1,16 @@
 {
-  "navigationBarTitleText": "购物车",
+  "navigationBarTitleText": "我的预订",
   "usingComponents": {
-    "cart-group": "./components/cart-group/index",
-    "cart-empty": "./components/cart-empty/index",
-    "cart-bar": "./components/cart-bar/index",
+    "t-tabs": "tdesign-miniprogram/tabs/tabs",
+    "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
+    "t-empty": "tdesign-miniprogram/empty/empty",
     "t-toast": "tdesign-miniprogram/toast/toast",
-    "t-dialog": "tdesign-miniprogram/dialog/dialog"
+    "t-dialog": "tdesign-miniprogram/dialog/dialog",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
+    "load-more": "/components/load-more/index",
+    "loading-content": "/components/loading-content/index",
+    "order-card": "/pages/order/components/order-card/index",
+    "specs-goods-card": "/pages/order/components/specs-goods-card/index"
   }
 }
