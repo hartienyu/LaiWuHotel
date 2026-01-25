@@ -69,6 +69,7 @@
                   data-roomid="{{room.id}}" 
                   data-roomname="{{room.name}}" 
                   data-roomprice="{{room.price}}"
+                  data-hotelname="{{item.name}}"
                 >预订</t-button>
               </view>
             </view>

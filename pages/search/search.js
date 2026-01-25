@@ -1,5 +1,4 @@
 import { submitBooking } from '../../services/booking/submitBooking';
-import { searchHotels } from '../../services/booking/searchHotels';
 
 Page({
   data: {
@@ -7,13 +6,13 @@ Page({
     results: [],
     loading: false,
     
-    // 控制是否显示“无匹配结果”的提示
     showFallbackHint: false,
     
     // --- 预订弹窗数据 ---
     showBookingPopup: false,
     selectedRoomId: null,
     selectedRoomName: '',
+    selectedHotelName: '', // 🟢 新增
     selectedRoomPrice: 0,
     selectedCheckInDate: '',
     selectedCheckOutDate: '',
@@ -56,7 +55,6 @@ Page({
     });
   },
 
-  // --- 核心搜索逻辑 ---
   async doSearch() {
     this.setData({ loading: true, showFallbackHint: false });
     const db = wx.cloud.database();
@@ -67,30 +65,24 @@ Page({
       let isFallback = false;
 
       if (q) {
-        // 1. 精准搜索 (只搜名称)
         const regex = db.RegExp({ regexp: q, options: 'i' });
         res = await db.collection('hotels').where({
           name: regex
         }).get();
 
-        // 2. 如果没搜到 -> 兜底查所有 -> 显示提示
         if (!res.data || res.data.length === 0) {
           isFallback = true;
           res = await db.collection('hotels').get();
         }
       } else {
-        // 无搜索词 -> 查所有
         res = await db.collection('hotels').get();
       }
 
       let list = res.data || [];
 
       const formattedList = list.map(hotel => {
-        // 确保 roomList 存在
         const roomList = (hotel.roomList || []).map(room => ({
           ...room,
-          // 如果数据库里已经有了 id (例如 "hotel_1-room_1")，直接用；否则兜底用旧逻辑
-          // 这里的 .id 是新 JSON 中的字段
           id: room.id || `${hotel._id}_${Math.random().toString(36).substr(2, 5)}`
         }));
         
@@ -126,14 +118,10 @@ Page({
   openBookingPopup(e) {
     console.log('👉 点击预订，dataset:', e.currentTarget.dataset);
 
-    const app = getApp();
-    // if (app && app.checkLogin && !app.checkLogin()) return; // 登录拦截
-
-    // WXML 中 data-roomid 会转换为 dataset.roomid (全小写)
-    const { roomid, roomname, roomprice } = e.currentTarget.dataset;
+    // 🟢 获取 hotelname
+    const { roomid, roomname, roomprice, hotelname } = e.currentTarget.dataset;
     
     if (!roomid) {
-      console.error('❌ 未获取到 roomid，请检查 JSON 数据中 roomList 是否包含 id 字段');
       wx.showToast({ title: '数据错误: 缺少房间ID', icon: 'none' });
       return;
     }
@@ -147,8 +135,9 @@ Page({
 
     this.setData({
       showBookingPopup: true,
-      selectedRoomId: roomid,       // 这里直接就是 "hotel_1-room_1" 这种格式
+      selectedRoomId: roomid,
       selectedRoomName: roomname,
+      selectedHotelName: hotelname || '未知酒店', // 🟢 设置酒店名
       selectedRoomPrice: Number(roomprice),
       selectedCheckInDate: defaultCheckIn,
       selectedCheckOutDate: defaultCheckOut,
@@ -168,7 +157,8 @@ Page({
   },
 
   async submitBooking() {
-     const { selectedCheckInDate, selectedCheckOutDate, selectedRoomId, selectedRoomPrice, maxDateStr } = this.data;
+     // 🟢 取出 hotelName, roomName
+     const { selectedCheckInDate, selectedCheckOutDate, selectedRoomId, selectedRoomPrice, selectedHotelName, selectedRoomName } = this.data;
      
      if (!selectedCheckInDate || !selectedCheckOutDate) { 
        wx.showToast({ title: '请完善日期', icon: 'none' }); 
@@ -190,30 +180,32 @@ Page({
 
      wx.showLoading({ title: '提交中...' });
      try {
-       // 🟢 直接调用，传入的 selectedRoomId 已经是正确的格式 (如 hotel_1-room_1)
-       const res = await submitBooking(selectedRoomId, selectedCheckInDate, selectedCheckOutDate, selectedRoomPrice);
+       // 🟢 传入 hotelName, roomName
+       const res = await submitBooking(
+         selectedRoomId, 
+         selectedCheckInDate, 
+         selectedCheckOutDate, 
+         selectedRoomPrice, 
+         selectedHotelName, 
+         selectedRoomName
+       );
        
        wx.hideLoading();
        
-       if (res) {
-        // 预订成功，显示弹窗并跳转到订单列表
-        wx.showModal({
-          title: '预订成功',
-          content: `房间已成功预订\n入住：${selectedCheckInDate}\n离店：${this.data.selectedCheckOutDate}`,
-          showCancel: false,
-          confirmText: '查看订单',
-          success: () => {
-            // 关闭弹窗并刷新
-            this.closeBookingPopup();
-            // 延迟跳转到订单页面
-            setTimeout(() => {
-              wx.switchTab({
-                url: '/pages/cart/index'
-              });
-            }, 500);
-          }
-        });
-      }
+       if (res && res.code === 0) {
+         this.closeBookingPopup();
+         wx.showModal({
+           title: '预订成功',
+           content: `酒店：${selectedHotelName}\n房型：${selectedRoomName}\n您的房间已锁定`,
+           confirmText: '看订单',
+           cancelText: '关闭',
+           success: (m) => {
+             if (m.confirm) { 
+               wx.switchTab({ url: '/pages/cart/index' }); 
+             }
+           }
+         });
+       }
      } catch (err) {
        wx.hideLoading();
        console.error(err);
