@@ -1,59 +1,136 @@
-:host {
-  padding-bottom: 100rpx;
+page {
+  background-color: #f5f5f5;
 }
 
 .page-container {
-  background-color: #f5f5f5;
   min-height: 100vh;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-.tab-bar {
-  height: 44px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+.order-list-wrap {
+  padding: 24rpx;
 }
 
-.tab-bar__placeholder {
-  height: 44px;
+/* --- 卡片样式 --- */
+.booking-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
 }
 
-.tab-bar__inner {
-  --td-tabs-color: #999;
-  --td-tabs-text-active-color: #fa4126;
-}
-
-.tab-bar__active {
-  color: #fa4126 !important;
-}
-
-.t-tabs-track {
-  background-color: #fa4126 !important;
-}
-
-.order-number {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.order-button {
+/* 头部 */
+.card-header {
   display: flex;
-  justify-content: flex-end;
-  padding: 16px;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
 }
 
-.t-empty-description {
+.create-time {
+  font-size: 24rpx;
   color: #999;
-  font-size: 14px;
 }
 
-.retry-btn {
-  margin-top: 16px;
+.status-tag {
+  font-size: 24rpx;
+  font-weight: bold;
+}
+.status-1 { color: #ed7b2f; } /* 待确认 - 橙色 */
+.status-2 { color: #00a870; } /* 已确认 - 绿色 */
+.status-3 { color: #999999; } /* 已取消 - 灰色 */
+
+.divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin-bottom: 20rpx;
 }
 
-.t-button {
-  --td-button-default-color: #000;
-  --td-button-primary-text-color: #fff;
-  --td-button-primary-bg-color: #fa4126;
+/* 主体 */
+.card-body {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.room-img {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
+  background-color: #eee;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.room-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hotel-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+
+.room-name {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.date-range {
+  font-size: 22rpx;
+  color: #999;
+  background: #f9f9f9;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  display: inline-block;
+}
+
+.date-separator {
+  margin: 0 8rpx;
+  color: #ddd;
+}
+
+/* 底部 */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.order-no {
+  font-size: 22rpx;
+  color: #bbb;
+  font-family: monospace;
+}
+
+.price-wrap {
+  color: #fa4126;
+  font-weight: bold;
+}
+
+.currency {
+  font-size: 24rpx;
+  margin-right: 4rpx;
+}
+
+.price {
+  font-size: 36rpx;
+}
+
+/* 其他通用 */
+.loading-center {
+  padding: 40rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.bottom-spacer {
+  height: 120rpx;
 }

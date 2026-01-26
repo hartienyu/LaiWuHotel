@@ -1,13 +1,12 @@
 <view class="page-container">
   <view class="tab-bar">
-    <view class="tab-bar__placeholder" />
     <t-tabs
       t-class="tab-bar__inner"
       t-class-active="tab-bar__active"
       t-class-track="t-tabs-track"
       bind:change="onTabChange"
-      value="{{status}}"
-      style="position: fixed; top: 0; left: 0; z-index: 100"
+      value="{{curTab}}"
+      sticky="{{true}}"
     >
       <t-tab-panel
         wx:for="{{tabs}}"
@@ -19,80 +18,68 @@
       />
     </t-tabs>
   </view>
+
   <t-pull-down-refresh
-    id="pull-down-refresh"
-    normal-bar-height="{{200}}"
-    max-bar-height="{{272}}"
-    refreshTimeout="{{3000}}"
-    background="#f5f5f5"
-    use-loading-slot
-    loading-size="60rpx"
     value="{{pullDownRefreshing}}"
-    bindrefresh="onPullDownRefresh_"
-    t-class-indicator="t-class-indicator"
+    bind:refresh="onPullDownRefresh"
+    background="#f5f5f5"
+    using-custom-navbar="{{true}}"
   >
-    <order-card
-      wx:for="{{bookingList}}"
-      wx:key="id"
-      wx:for-item="order"
-      wx:for-index="oIndex"
-      order="{{order}}"
-      defaultShowNum="{{3}}"
-      data-order="{{order}}"
-      bindcardtap="onOrderCardTap"
-      useLogoSlot
-    >
-      <view slot="top-left" class="order-number">
-        <text decode>预订号&nbsp;</text>
-        {{order.orderNo}}
-      </view>
-      <specs-goods-card
-        wx:for="{{order.goodsList}}"
-        wx:key="id"
-        wx:for-item="goods"
-        wx:for-index="gIndex"
-        goods="{{goods}}"
-        no-top-line="{{gIndex === 0}}"
-      />
-      <view slot="bottom-right" class="order-button">
-        <t-button 
-          theme="primary" 
-          size="small"
-          bindtap="onOrderCardTap"
-          data-order="{{order}}"
-        >
-          查看详情
-        </t-button>
-      </view>
-    </order-card>
-    
-    <!-- 加载状态 -->
-    <block wx:if="{{listLoading === 1}}">
-      <loading-content />
-    </block>
-    
-    <!-- 列表为空 -->
-    <block wx:elif="{{listLoading === 2}}">
-      <t-empty
-        image="{{emptyImg}}"
-        description="暂无预订订单"
-        t-class-description="t-empty-description"
-      />
-    </block>
-    
-    <!-- 加载失败 -->
-    <block wx:elif="{{listLoading === 3}}">
-      <t-empty
-        image="{{emptyImg}}"
-        description="加载失败，请重试"
-        t-class-description="t-empty-description"
-      >
-        <view slot="footer" class="retry-btn">
-          <t-button theme="primary" bindtap="onReTryLoad">重新加载</t-button>
+    <view class="order-list-wrap">
+      <block wx:for="{{bookingList}}" wx:key="id" wx:for-item="item">
+        <view class="booking-card" bindtap="onOrderCardTap" data-order="{{item}}">
+          
+          <view class="card-header">
+            <text class="create-time">预订时间：{{item.createTimeStr}}</text>
+            <text class="status-tag status-{{item.status}}">{{item.statusDesc}}</text>
+          </view>
+          
+          <view class="divider"></view>
+
+          <view class="card-body">
+            <image class="room-img" src="{{item.thumb}}" mode="aspectFill" />
+            
+            <view class="room-info">
+              <view class="hotel-name">{{item.hotelName}}</view>
+              <view class="room-name">{{item.roomName}}</view>
+              <view class="date-range">
+                <text>入住: {{item.checkInDate}}</text>
+                <text class="date-separator">|</text>
+                <text>离店: {{item.checkOutDate}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="card-footer">
+            <view class="order-no">订单号: {{item.orderNo}}</view>
+            <view class="price-wrap">
+              <text class="currency">¥</text>
+              <text class="price">{{item.amount / 100}}</text>
+            </view>
+          </view>
+
         </view>
-      </t-empty>
-    </block>
+      </block>
+    </view>
+
+    <view wx:if="{{listLoading === 1}}" class="loading-center">
+      <t-loading theme="circular" size="40rpx" text="加载中..." />
+    </view>
+
+    <t-empty
+      wx:elif="{{listLoading === 2}}"
+      image="{{emptyImg}}"
+      description="暂无相关订单"
+    />
+
+    <t-empty
+      wx:elif="{{listLoading === 3}}"
+      image="{{emptyImg}}"
+      description="加载失败"
+    >
+      <t-button slot="action" theme="primary" bindtap="onReTryLoad">重试</t-button>
+    </t-empty>
+
+    <view class="bottom-spacer"></view>
   </t-pull-down-refresh>
 </view>
-<t-toast id="t-toast" />
-<t-dialog id="t-dialog" />
