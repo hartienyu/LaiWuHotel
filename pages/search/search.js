@@ -27,7 +27,10 @@ Page({
     let checkInDate = options?.checkInDate;
     let checkOutDate = options?.checkOutDate;
     
+    console.log('🔍 onLoad 接收参数:', { checkInDate, checkOutDate });
+    
     if (checkInDate && checkOutDate) {
+      console.log('✅ 使用首页传入的日期:', { checkInDate, checkOutDate });
       this.setData({ selectedCheckInDate: checkInDate, selectedCheckOutDate: checkOutDate });
     } else {
       // 如果没有参数，使用默认日期
@@ -35,9 +38,12 @@ Page({
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
       const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
       const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const defaultCheckIn = format(today);
+      const defaultCheckOut = format(tomorrow);
+      console.log('⚠️ 使用默认日期:', { defaultCheckIn, defaultCheckOut });
       this.setData({
-        selectedCheckInDate: format(today),
-        selectedCheckOutDate: format(tomorrow)
+        selectedCheckInDate: defaultCheckIn,
+        selectedCheckOutDate: defaultCheckOut
       });
     }
 
@@ -136,7 +142,7 @@ Page({
   openBookingPopup(e) {
     console.log('👉 点击预订，dataset:', e.currentTarget.dataset);
 
-    // 🟢 获取 hotelname
+    // 🟢 获取房间信息
     const { roomid, roomname, roomprice, hotelname } = e.currentTarget.dataset;
     
     if (!roomid) {
@@ -144,21 +150,19 @@ Page({
       return;
     }
 
-    const today = new Date();
-    const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
-    const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const defaultCheckIn = format(today);
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const defaultCheckOut = format(tomorrow);
+    // 🟢 使用已有的日期，而不是重新生成默认日期
+    // 这些日期已经在 onLoad() 中从首页传入或设置为默认值
+    const { selectedCheckInDate, selectedCheckOutDate } = this.data;
+    
+    console.log('📅 打开预订弹窗，当前日期:', { selectedCheckInDate, selectedCheckOutDate });
 
     this.setData({
       showBookingPopup: true,
       selectedRoomId: roomid,
       selectedRoomName: roomname,
-      selectedHotelName: hotelname || '未知酒店', // 🟢 设置酒店名
+      selectedHotelName: hotelname || '未知酒店',
       selectedRoomPrice: Number(roomprice),
-      selectedCheckInDate: defaultCheckIn,
-      selectedCheckOutDate: defaultCheckOut,
+      // 注意：selectedCheckInDate 和 selectedCheckOutDate 保持不变，不重新赋值
     });
   },
 

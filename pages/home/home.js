@@ -140,6 +140,7 @@ Page({
   onBookingTap() {
     const query = this.data.searchKeyword || '';
     const { rawStartDate, rawEndDate } = this.data;
+    // 确保日期参数正确传递（日期格式本身不需要编码，但为了安全性可以编码）
     wx.navigateTo({
       url: `/pages/search/search?q=${encodeURIComponent(query)}&checkInDate=${rawStartDate}&checkOutDate=${rawEndDate}`
     });
