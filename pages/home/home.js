@@ -139,8 +139,9 @@ Page({
 
   onBookingTap() {
     const query = this.data.searchKeyword || '';
+    const { rawStartDate, rawEndDate } = this.data;
     wx.navigateTo({
-      url: `/pages/search/search?q=${encodeURIComponent(query)}`
+      url: `/pages/search/search?q=${encodeURIComponent(query)}&checkInDate=${rawStartDate}&checkOutDate=${rawEndDate}`
     });
   },
 

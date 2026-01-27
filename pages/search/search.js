@@ -23,6 +23,24 @@ Page({
   onLoad(options) {
     this.initDateLimits();
 
+    // 🟢 从首页获取日期参数
+    let checkInDate = options?.checkInDate;
+    let checkOutDate = options?.checkOutDate;
+    
+    if (checkInDate && checkOutDate) {
+      this.setData({ selectedCheckInDate: checkInDate, selectedCheckOutDate: checkOutDate });
+    } else {
+      // 如果没有参数，使用默认日期
+      const today = new Date();
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
+      const format = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      this.setData({
+        selectedCheckInDate: format(today),
+        selectedCheckOutDate: format(tomorrow)
+      });
+    }
+
     if (options && options.q) {
       const q = decodeURIComponent(options.q);
       this.setData({ query: q }, () => {
