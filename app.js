@@ -5,13 +5,11 @@ App({
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
     } else {
-      // ✅ 必须填入图片链接里包含的这个环境 ID
+      // 云开发环境ID
       wx.cloud.init({
-        env: 'cloud1-6g8tcpm9a4ef8050', 
+        env: 'cloudbase-8gmfv8spb80715eb', 
         traceUser: true,
       });
-
-      // 获取用户 OpenID 用于数据库查询
       this.getUserOpenId();
     }
   },
