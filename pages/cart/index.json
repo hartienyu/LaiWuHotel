@@ -8,9 +8,8 @@
     "t-dialog": "tdesign-miniprogram/dialog/dialog",
     "t-button": "tdesign-miniprogram/button/button",
     "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
+    "t-loading": "tdesign-miniprogram/loading/loading",
     "load-more": "/components/load-more/index",
-    "loading-content": "/components/loading-content/index",
-    "order-card": "/pages/order/components/order-card/index",
-    "specs-goods-card": "/pages/order/components/specs-goods-card/index"
+    "loading-content": "/components/loading-content/index"
   }
 }
