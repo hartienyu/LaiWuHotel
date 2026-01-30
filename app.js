@@ -7,7 +7,7 @@ App({
     } else {
       // ✅ 必须填入图片链接里包含的这个环境 ID
       wx.cloud.init({
-        env: 'cloud1-6g8tcpm9a4ef8050', 
+        env: 'cloudbase-8gmfv8spb80715eb', 
         traceUser: true,
       });
 
