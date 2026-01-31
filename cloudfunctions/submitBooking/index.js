@@ -58,20 +58,23 @@ exports.main = async (event) => {
       }
     }
 
-    // 4. 创建订单
-    const { OPENID } = cloud.getWXContext();
-    const orderRes = await transaction.collection('inn_booking').add({
-      data: {
-        _openid: OPENID,
-        roomId,
-        checkInDate,
-        checkOutDate,
-        stayDays: bookingDates.length,
-        roomPrice: Number(roomPrice),
-        status: 1,
-        createTime: db.serverDate()
-      }
-    });
+// 4. 创建订单
+const { OPENID } = cloud.getWXContext();
+const orderRes = await transaction.collection('inn_booking').add({
+  data: {
+    _openid: OPENID,
+    userId: OPENID,
+    roomId,
+    hotelName: hotelName || '民宿',
+    roomName: roomName || '标准间',
+    checkInDate,
+    checkOutDate,
+    stayDays: bookingDates.length,
+    roomPrice: Number(roomPrice),
+    status: 1,                   // 🟢 1 代表待确认 
+    createTime: db.serverDate()
+  }
+});
 
     await transaction.commit(); // 提交事务
     return { code: 0, message: '预订成功', data: { orderId: orderRes._id } };
