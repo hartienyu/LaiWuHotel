@@ -4,3 +4,4 @@ node_modules/
 project.private.config.json
 project.config.json
 sitemap.json
+.vs/
